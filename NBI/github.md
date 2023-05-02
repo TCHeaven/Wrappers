@@ -10,7 +10,7 @@ git clone https://github.com/TCHeaven/Aphididae
 git clone https://github.com/TCHeaven/Psyllidae
 git clone https://github.com/TCHeaven/Wrappers
 
-#
+#NOTE: cannot push to github from the head node
 cd /hpc-home/did23faz/git_repos/Aphididae
 git add .
 git commit <> -m "" 
