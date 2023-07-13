@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=create_sample_sequence_files
-#SBATCH -o slurm.%j.out
-#SBATCH -e slurm.%j.err
+#SBATCH -o logs/create_sample_sequence_files/slurm.%j.out
+#SBATCH -e logs/create_sample_sequence_files/slurm.%j.err
 #SBATCH --mem 2G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH -p jic-short
-#SBATCH --time=0-02:00:00
+#SBATCH -p jic-medium,nbi-medium
+#SBATCH --time=2-00:00:00
 
 CurPath=$PWD
 #WorkDir=${TMPDIR}/${SLURM_JOB_ID}
