@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=create_sample_sequence_files
-#SBATCH -o logs/create_sample_sequence_files/slurm.%j.out
-#SBATCH -e logs/create_sample_sequence_files/slurm.%j.err
+#SBATCH -o logs/create_sample_sequence_files_het/slurm.%j.out
+#SBATCH -e logs/create_sample_sequence_files_het/slurm.%j.err
 #SBATCH --mem 2G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -31,13 +31,15 @@ echo fastaFile:
 echo $fasta
 echo GeneInfoFile:
 echo $gene_info
+echo GeneName:
+echo $Genename
 echo _
 echo _
 
 mkdir -p $WorkDir
 
 cp $InFile $WorkDir/vcf.vcf
-cp $fasta $WorkDir/fasta.fa
+grep -A 1 "$Genename" $fasta | cut -d ':' -f1 > $WorkDir/fasta.fa
 cp $gene_info $WorkDir/geneinfo.txt
 cd $WorkDir
 

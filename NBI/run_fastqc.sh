@@ -4,7 +4,7 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 4G
 #SBATCH --nodes=1
-#SBATCH -c 4
+#SBATCH -c 16
 #SBATCH -p jic-short,nbi-short
 #SBATCH --time=0-02:00:00
 

@@ -5,47 +5,71 @@
 #SBATCH --mem 16G
 #SBATCH --nodes=1
 #SBATCH -c 4
-#SBATCH -p jic-medium,nbi-medium
+#SBATCH -p jic-medium,nbi-medium,jic-long,nbi-long
 #SBATCH --time=2-00:00:00
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
-InFile=$(basename $1)
-Reads_2=$(basename $2)
-OutDir=$3
-OutFile=$4
+OutDir=$1
+OutFile=$2
+Quality=$3
+Length=$4
 
+Fread=$5
+Rread=$6
+Fread2=$7
+Rread2=$8
+
+Sample=$(echo $OutDir | rev | cut -d '/' -f1 | rev)
 
 echo CurPth:
 echo $CurPath
 echo WorkDir:
 echo $WorkDir
-echo Reads_1:
-echo $1
-echo $InFile
-echo Reads_2:
-echo $2
-echo $Reads_2
 echo OutDir:
 echo $OutDir
 echo OutFile:
 echo $OutFile
+echo Sample: ${Sample}
+
+echo Forward reads 1:
+echo $Fread
+echo Reverse read 1:
+echo $Rread
+echo Forward reads 2:
+echo $Fread2
+echo Reverse read 2:
+echo $Rread2
 
 echo _
 echo _
 
 mkdir -p $WorkDir
 
-cp $1 $WorkDir/$InFile
-cp $2 $WorkDir/$Reads_2
+zcat $Fread $Fread2 | gzip > $WorkDir/F.fq.gz
+zcat $Rread $Rread2 | gzip > $WorkDir/R.fq.gz
 
 cd $WorkDir
 
 source package 04b61fb6-8090-486d-bc13-1529cd1fb791
 
-trim_galore --gzip -j 4 --fastqc --quality 0 --length 150 $InFile $Reads_2
+trim_galore --gzip -j 4 --quality $Quality --length $Length --output_dir . --paired F.fq.gz R.fq.gz
 
-cp # $OutDir/.
+
+cp F.fq.gz_trimming_report.txt ${OutDir}/${OutFile}_1_report.txt
+cp R.fq.gz_trimming_report.txt ${OutDir}/${OutFile}_2_report.txt
+cp F_val_1.fq.gz ${OutDir}/${OutFile}_1.fq.gz
+cp R_val_2.fq.gz ${OutDir}/${OutFile}_2.fq.gz
+
+#NOTE: to save space the script has been edited to save files to delete input files. 
+if [ -e ${OutDir}/${OutFile}_1.fq.gz ] && [ -e ${OutDir}/${OutFile}_2.fq.gz ]; then
+rm $Rread
+rm $Rread2
+rm $Fread
+rm $Fread2
+else
+echo Outputs not detected
+fi
+
 echo DONE
-#rm -r $WorkDir
-
+rm -r $WorkDir

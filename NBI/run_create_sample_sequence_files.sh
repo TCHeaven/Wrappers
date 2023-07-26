@@ -2,8 +2,8 @@
 #SBATCH --job-name=create_sample_sequence_files
 #SBATCH -o logs/create_sample_sequence_files/slurm.%j.out
 #SBATCH -e logs/create_sample_sequence_files/slurm.%j.err
-#SBATCH --mem 2G
-#SBATCH --nodes=1
+#SBATCH --mem 8G
+#SBATCH -c 4
 #SBATCH --ntasks-per-node=1
 #SBATCH -p jic-medium,nbi-medium
 #SBATCH --time=2-00:00:00
@@ -16,6 +16,8 @@ OutDir=$2
 OutFile=$3
 fasta=$4
 gene_info=$5
+
+Genename=$(echo $OutFile | sed 's@.fa@@g')
 
 echo CurPth:
 echo $CurPath
@@ -31,15 +33,19 @@ echo fastaFile:
 echo $fasta
 echo GeneInfoFile:
 echo $gene_info
+echo GeneName:
+echo $Genename
 echo _
 echo _
 
 mkdir -p $WorkDir
 
 cp $InFile $WorkDir/vcf.vcf
-cp $fasta $WorkDir/fasta.fa
-cp $gene_info $WorkDir/geneinfo.txt
+grep -A 1 "$Genename" $fasta | cut -d ':' -f1 > $WorkDir/fasta.fa
+grep "$Genename" $gene_info > $WorkDir/geneinfo.txt
 cd $WorkDir
+
+ls -lh $WorkDir
 
 singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 /hpc-home/did23faz/git_repos/Scripts/NBI/create_sample_sequence_files.py geneinfo.txt vcf.vcf fasta.fa .
 
@@ -64,5 +70,5 @@ done
 
 cp *${OutFile} $OutDir/.
 echo DONE
-rm -r $WorkDir
+#rm -r $WorkDir
 

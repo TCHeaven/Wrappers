@@ -4,8 +4,8 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 30G
 #SBATCH -c 30
-#SBATCH -p jic-short
-#SBATCH --time=0-02:00:00
+#SBATCH -p jic-medium
+#SBATCH --time=02-00:00:00
 
 # #SBATCH -p jic-short
 # #SBATCH --nodelist=j64n11,j64n12,j64n13,j64n14,j64n15,j64n16
