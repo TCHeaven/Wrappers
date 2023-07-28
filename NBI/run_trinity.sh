@@ -2,8 +2,8 @@
 #SBATCH --job-name=trinity
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 150G
-#SBATCH -c 16
+#SBATCH --mem 500G
+#SBATCH -c 64
 #SBATCH --ntasks-per-node=1
 #SBATCH -p jic-long,nbi-long
 #SBATCH --time=7-0:00:00
@@ -48,7 +48,7 @@ source package 638df626-d658-40aa-80e5-14a275b7464b
 source package fa33234e-dceb-4a58-9a78-7bcf9809edd7
 mkdir trinity_de_novo
 mkdir trinity_guided
-Trinity --seqType fq --max_memory 150G --left $Freads_list  --right $Rreads_list --CPU 16 --verbose --output trinity_de_novo
+Trinity --seqType fq --max_memory 475G --left $Freads_list  --right $Rreads_list --CPU 64 --verbose --output trinity_de_novo
 
 #Unstranded RNA-seq data were aligned to the genome with HISAT2 with the parameters “–max-intronlen 25000 –dtacufflinks” followed by sorting and indexing with SAMtools v1.3 (Li et al. 2009).
 #Strand-specific RNA-seq was mapped as for the unstranded data, with the addition of the HISAT2 parameter “–rna-strandness RF.”
@@ -59,8 +59,9 @@ zcat $(echo $Rreads_list | tr ',' ' ') | gzip > fastq2.fq.gz
 bwa mem genome.fa -t 16 fastq1.fq.gz fastq2.fq.gz -o sam.sam
 samtools view -bS sam.sam > sam.bam
 samtools sort sam.bam -o sorted_sam.bam
+samtools index sorted_sam.bam
 
-Trinity --genome_guided_bam sam.bam --max_memory 150G --genome_guided_max_intron $Max_intron --CPU 16 --verbose --output trinity_guided
+Trinity --genome_guided_bam sam.bam --max_memory 475G --genome_guided_max_intron $Max_intron --CPU 64 --verbose --output trinity_guided
 
 #cp *${OutFile} $OutDir/.
 echo DONE

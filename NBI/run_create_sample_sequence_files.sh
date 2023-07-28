@@ -16,8 +16,9 @@ OutDir=$2
 OutFile=$3
 fasta=$4
 gene_info=$5
+Unique_ID=${SLURM_JOB_ID}
 
-Genename=$(echo $OutFile | sed 's@.fa@@g')
+Genename=$(echo $OutFile | sed 's@.fa@@g' | sed 's@hom_@@g')
 
 echo CurPth:
 echo $CurPath
@@ -35,6 +36,8 @@ echo GeneInfoFile:
 echo $gene_info
 echo GeneName:
 echo $Genename
+echo Unique_ID:
+echo $Unique_ID
 echo _
 echo _
 
@@ -47,28 +50,30 @@ cd $WorkDir
 
 ls -lh $WorkDir
 
-singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 /hpc-home/did23faz/git_repos/Scripts/NBI/create_sample_sequence_files.py geneinfo.txt vcf.vcf fasta.fa .
+singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 /hpc-home/did23faz/git_repos/Scripts/NBI/create_sample_sequence_files.py geneinfo.txt vcf.vcf fasta.fa $Unique_ID .
 
-touch hom_${OutFile}
-for file in $(ls *_REFERENCE.fasta); do
+for file in $(ls *${SLURM_JOB_ID}_REFERENCE.fasta); do
 echo $file
-header=$(echo $file | rev | cut -d '.' --complement -f1 | rev)
-echo $header
+header=$(echo $file | rev | cut -d '.' --complement -f1,2 | rev)
+echo Header: $header
 #echo '>'${header} >> $OutFile
-cat $file >> hom_${OutFile}
+cat $file >> ${SLURM_JOB_ID}_${OutFile}
 #echo >> $OutFile
 done
 
-for file in $(ls *_SAMPLE.fasta); do
+for file in $(ls *${SLURM_JOB_ID}_SAMPLE.fasta); do
 echo $file
-header=$(echo $file | rev | cut -d '_' --complement -f1 | rev)
-echo $header
+header=$(echo $file | rev | cut -d '_' --complement -f1,2 | rev)
+echo Header: $header
 #echo '>'${header} >> $OutFile
-cat $file >> hom_$OutFile
+cat $file >> ${SLURM_JOB_ID}_$OutFile
 #echo >> $OutFile
 done
+
+echo final contents:
+ls
 
 cp *${OutFile} $OutDir/.
 echo DONE
-#rm -r $WorkDir
+rm -r $WorkDir
 
