@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=create_mutant_CDS
-#SBATCH -o logs/splice_CDS/slurm.%j.out
-#SBATCH -e logs/splice_CDS/slurm.%j.err
+#SBATCH -o slurm.%j.out
+#SBATCH -e slurm.%j.err
 #SBATCH --mem 4G
 #SBATCH -c 1
 #SBATCH -p jic-short, nbi-short

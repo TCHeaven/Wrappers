@@ -125,4 +125,4 @@ mv ${OutDir}/qualimap/genome_results.txt ${OutDir}/qualimap/${OutFile1}_genome_r
 fi
 
 echo DONE
-rm -r $WorkDir
+#rm -r $WorkDir

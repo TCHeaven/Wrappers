@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=create_sample_sequence_files_het
-#SBATCH -o logs/create_sample_sequence_files_het/slurm.%j.out
-#SBATCH -e logs/create_sample_sequence_files_het/slurm.%j.err
+#SBATCH --job-name=create_sample_sequence_files
+#SBATCH -o slurm.%j.out
+#SBATCH -e slurm.%j.err
 #SBATCH --mem 8G
 #SBATCH -c 4
 #SBATCH --ntasks-per-node=1
@@ -18,7 +18,7 @@ fasta=$4
 gene_info=$5
 Unique_ID=${SLURM_JOB_ID}
 
-Genename=$(echo $OutFile | sed 's@.fa@@g' | sed 's@het_@@g')
+Genename=$(echo $OutFile | sed 's@.fa@@g' | sed 's@hom_@@g')
 
 echo CurPth:
 echo $CurPath
@@ -50,7 +50,7 @@ cd $WorkDir
 
 ls -lh $WorkDir
 
-singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 /hpc-home/did23faz/git_repos/Scripts/NBI/create_sample_sequence_files_het.py geneinfo.txt vcf.vcf fasta.fa $Unique_ID .
+singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 /hpc-home/did23faz/git_repos/Scripts/NBI/create_sample_sequence_files_haploid.py geneinfo.txt vcf.vcf fasta.fa $Unique_ID .
 
 for file in $(ls *${SLURM_JOB_ID}_REFERENCE.fasta); do
 echo $file

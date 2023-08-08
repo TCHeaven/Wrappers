@@ -2,7 +2,7 @@
 #SBATCH --job-name=kat_comp
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 150G
+#SBATCH --mem 450G
 #SBATCH --nodes=1
 #SBATCH -c 32
 #SBATCH -p nbi-long,jic-long
@@ -151,9 +151,12 @@ else
     echo "No read files were provided"
 fi
 
+mv fastaF.fq.gz PE.R1.fastq.gz
+mv fastaR.fq.gz PE.R2.fastq.gz
+
 source package 7f4fb852-f5c2-4e4b-b9a6-e648176d5543
-kat comp -t 32 -o ${OutFile}_31 -m 31 -H 100000000 -I 100000000 'fastaF.fq.gz fastaR.fq.gz' 'genome.fa'
-kat comp -t 32 -o ${OutFile}_51 -m 51 -H 100000000 -I 100000000 'fastaF.fq.gz fastaR.fq.gz' 'genome.fa'
+kat comp -t 32 -o ${OutFile}_31 -m 31 -H 100000000 -I 100000000 'PE.R?.fastq.gz' genome.fa
+kat comp -t 32 -o ${OutFile}_51 -m 51 -H 100000000 -I 100000000 'PE.R?.fastq.gz' genome.fa
 
 kat plot spectra-cn -x 50 -o ${OutFile}_plot50_31 ${OutFile}_31-main.mx
 kat plot spectra-cn -x 100 -o ${OutFile}_plot100_31 ${OutFile}_31-main.mx
