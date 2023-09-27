@@ -1,11 +1,11 @@
-#!/bin/bash
+0#!/bin/bash
 #SBATCH --job-name=RAxML
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
 #SBATCH --mem-per-cpu=2G
 #SBATCH --cpus-per-task=1
-#SBATCH -p jic-long
-#SBATCH --time=30-00:00
+#SBATCH -p jic-short,nbi-short
+#SBATCH --time=00-02:00
 
 #Collect inputs
 CurPath=$PWD

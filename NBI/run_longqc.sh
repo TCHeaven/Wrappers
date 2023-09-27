@@ -2,7 +2,7 @@
 #SBATCH --job-name=longqc
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 4G
+#SBATCH --mem 50G
 #SBATCH --nodes=1
 #SBATCH -c 4
 #SBATCH -p jic-medium,nbi-medium
@@ -41,7 +41,7 @@ source package f6dcac33-2b3c-4fc1-ae27-bb374a11ed78
 
 gunzip fasta.fq.gz
 echo Running longQC
-/software/f6dcac33-2b3c-4fc1-ae27-bb374a11ed78/bin/longQC.py sampleqc -x $Datatype --ncpu 4 --mem 4 --sample_name $OutFile --output $OutDir fasta.fq
+/software/f6dcac33-2b3c-4fc1-ae27-bb374a11ed78/bin/longQC.py sampleqc -x $Datatype --ncpu 4 --mem 2 --sample_name $OutFile --output $OutDir fasta.fq
 
 echo DONE
 rm -r $WorkDir

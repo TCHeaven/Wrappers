@@ -60,7 +60,7 @@ singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/pyth
 #Collect Outputs
 cd OutFiles
 source package 01ef5a53-c149-4c9e-b07d-0b9a46176cc0
-for file in *; do bgzip "$file"; done
+#for file in *; do bgzip "$file"; done
 
 cp * $OutDir/.
 echo DONE

@@ -55,7 +55,7 @@ source package fa33234e-dceb-4a58-9a78-7bcf9809edd7
 source package f9c1e0c5-d0e8-4ba0-9edd-88235400fa13
 mkdir trinity_de_novo
 mkdir trinity_guided
-Trinity --seqType fq --max_memory 475G --left $Freads_list  --right $Rreads_list --CPU 64 --verbose --output trinity_de_novo
+#Trinity --seqType fq --max_memory 475G --left $Freads_list  --right $Rreads_list --CPU 64 --verbose --output trinity_de_novo
 
 #bwa index genome.fa
 #zcat $(echo $Freads_list | tr ',' ' ') > fastq1.fq
@@ -80,4 +80,4 @@ Trinity --genome_guided_bam sorted_sam.bam --max_memory 475G --genome_guided_max
 cp trinity_de_novo/Trinity.fasta ${OutDir}/${OutFile}_trinity_de_novo.fa
 cp trinity_guided/Trinity.fasta ${OutDir}/${OutFile}_trinity_guided.fa
 echo DONE
-rm -r $WorkDir
+#rm -r $WorkDir

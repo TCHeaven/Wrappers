@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=extract_gene_snps
+#SBATCH --job-name=extract_cds_snps
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 10G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
-#SBATCH -p jic-long
-#SBATCH --time=1-0:00:00
+#SBATCH -p jic-medium,nbi-medium
+#SBATCH --time=2-00:00:00
 
 
 #Collect inputs
