@@ -5,7 +5,7 @@
 #SBATCH --mem 350G
 #SBATCH --nodes=1
 #SBATCH -c 32
-#SBATCH -p nbi-medium,jic-medium,nbi-long,jic-long
+#SBATCH -p jic-medium,jic-long
 #SBATCH --time=02-00:00:00
 
 CurPath=$PWD

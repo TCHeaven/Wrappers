@@ -170,6 +170,7 @@ else
     echo "No read files were provided"
 fi
 
+cp ${OutFile}.bp.p_ctg.gfa $OutDir/.
 awk '/^S/{print ">"$2;print $3}' ${OutFile}.bp.p_ctg.gfa > ${OutFile}.bp.p_ctg.fa
 abyss-fac ${OutFile}.bp.p_ctg.fa > $OutDir/abyss_report.txt
 

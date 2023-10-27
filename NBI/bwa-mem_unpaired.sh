@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=minimap
+#SBATCH --job-name=bwa
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 50G
 #SBATCH --nodes=1
-#SBATCH -c 4
-#SBATCH -p jic-medium,nbi-medium
-#SBATCH --time=2-00:00:00
+#SBATCH -c 62
+#SBATCH -p jic-medium
+#SBATCH --time=02-00:00:00
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
@@ -30,20 +30,39 @@ echo ${4}
 echo 2:
 echo ${5}
 
+echo 3:
+echo ${6}
+echo 4:
+echo ${7}
+
+echo 5:
+echo ${8}
+echo 6:
+echo ${9}
+
+echo 7:
+echo ${10}
+echo 8:
+echo ${11}
+
 mkdir $WorkDir
-ln -s ${4} $WorkDir/read1.fq.gz
-ln -s ${5} $WorkDir/read2.fq.gz
+zcat ${4} ${5} ${6} ${7} ${8} ${9} ${10} ${11} > $WorkDir/read.fq
 ln -s $Reference $WorkDir/reference.fasta
 
 cd $WorkDir
-source package 222eac79-310f-4d4b-8e1c-0cece4150333
-minimap2 -ax map-hifi reference.fasta read1.fq.gz read2.fq.gz > aln.sam
-
+gzip read.fq
+source package /nbi/software/testing/bin/bwa-0.7.15
 source package 638df626-d658-40aa-80e5-14a275b7464b
-samtools view -bS aln.sam > ${OutFile}.bam
+bwa index reference.fasta
+
+bwa mem -t 62 reference.fasta read.fq.gz > $OutFile.sam
+
+samtools view -bS ${OutFile}.sam > ${OutFile}.bam
 
 cp ${OutFile}.bam $OutDir/.
-echo minimap DONE
+echo DONE
+pwd
+ls -lh
 
 cd $CurPath
 ProgDir=~/git_repos/Wrappers/NBI

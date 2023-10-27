@@ -11,11 +11,12 @@
 # #SBATCH --nodelist=j64n11,j64n12,j64n13,j64n14,j64n15,j64n16
 
 CurPath=$PWD
-WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
+
 Genome=$1
 Database=${2}
-OutDir=${3}/$(basename $Database)
+WorkDir=${3}
 OutFile=$4
+OutDir=$(basename $Database)
 
 echo CurPth:
 echo $CurPath
@@ -32,14 +33,17 @@ echo $Database
 echo _
 echo _
 
-mkdir -p $WorkDir
-mkdir -p $OutDir
+
 cp $Genome $WorkDir/${OutFile}.fa
 
 cd $WorkDir
+echo pwd:
+pwd
 source package ad80b294-03bf-44cd-a1c2-1fc33efc411e
 
+mkdir $OutDir
 busco -i ${OutFile}.fa -l $Database -m geno -c 30 -f --tar --offline -o $OutDir
+echo "BUSCO complete" > $OutDir/check.txt
 
 echo DONE
-rm -r $WorkDir
+rm $WorkDir/${OutFile}.fa
