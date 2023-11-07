@@ -37,6 +37,7 @@ cp -s $Assembly $WorkDir/genome.fa
 cd $WorkDir
 
 source /nbi/software/staging/RCSUPPORT-2569/stagingloader
+source package /tgac/software/production/bin/abyss-1.3.5
 
 for Read in $(find $ReadDir/ -name "*.fastq.gz" -exec readlink -f {} \; | sort); do
 if [ $(basename $Read | grep '_R1_') ]; then
@@ -54,5 +55,9 @@ break10x -nodes 32  genome.fa  genome-BC_1.fastq.gz genome-BC_2.fastq.gz scaffol
 
 cp scaffolds-break.fasta ${OutDir}/${OutFile}_break.fa
 cp scaffolds-break.name ${OutDir}/${OutFile}_scaffolds-break.name
+
+abyss-fac ${OutDir}/${OutFile}_break.fa > ${OutDir}/abyss_report.txt
+
+
 echo DONE
 rm -r $WorkDir

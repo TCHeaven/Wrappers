@@ -24,7 +24,7 @@ echo Assembly:
 echo $Assembly
 echo Reads:
 echo $Read1
-echo Read2
+echo $Read2
 echo OutDir:
 echo $OutDir
 echo OutFile:
@@ -53,5 +53,5 @@ mkdir -p juicer/fastq
 ln -s $Read1 $WorkDir/juicer/fastq/read_R1.fastq.gz
 ln -s $Read2 $WorkDir/juicer/fastq/read_R2.fastq.gz
 singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/juicer.sif juicer.sh -t 16 -d $WorkDir/juicer -g saundersiae -z genome_wrapped.fa -y ${OutFile}_Phase.txt -p genome_wrapped.fa.fai -D /opt/juicer-1.6.2/CPU
-cd aligned
-run-asm-pipeline.sh --build-gapped-map -m diploid --rounds 1 --editor-repeat-coverage 5 --editor-saturation-centile 10 genome_wrapped.fa merged_nodups.txt
+cd juicer/aligned
+run-asm-pipeline.sh --build-gapped-map -m diploid --rounds 1 --editor-repeat-coverage 5 --editor-saturation-centile 10 ../../genome_wrapped.fa merged_nodups.txt

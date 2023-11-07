@@ -2,7 +2,7 @@
 #SBATCH --job-name=canu
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 50G
+#SBATCH --mem 100G
 #SBATCH --nodes=1
 #SBATCH -c 4
 #SBATCH -p jic-long

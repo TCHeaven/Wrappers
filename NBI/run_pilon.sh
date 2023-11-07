@@ -44,5 +44,8 @@ source package 338afe4a-63a0-4048-8284-b7a3368d97bc
 pilon -Xmx750G --genome genome.fa \
     --bam alignment.bam \
     --changes --mindepth 30 --tracks --diploid --threads 32 \
-    --output ${OutFile}
+    --output ${OutFile}_pilon
 
+cp ${OutFile}_pilon* ${OutDir}/.
+echo DONE
+rm -r $WorkDir

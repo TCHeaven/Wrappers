@@ -4,7 +4,7 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 50G
 #SBATCH --nodes=1
-#SBATCH -c 62
+#SBATCH -c 64
 #SBATCH -p jic-medium
 #SBATCH --time=02-00:00:00
 
@@ -55,7 +55,7 @@ source package /nbi/software/testing/bin/bwa-0.7.15
 source package 638df626-d658-40aa-80e5-14a275b7464b
 bwa index reference.fasta
 
-bwa mem -t 62 reference.fasta read.fq.gz > $OutFile.sam
+bwa mem -t 64 reference.fasta read.fq.gz > $OutFile.sam
 
 samtools view -bS ${OutFile}.sam > ${OutFile}.bam
 
@@ -69,4 +69,4 @@ ProgDir=~/git_repos/Wrappers/NBI
 sbatch $ProgDir/run_qualimap.sh ${OutDir}/${OutFile}.bam $Reference $OutDir 
 
 echo qualimap submitted
-rm -r $WorkDir
+#rm -r $WorkDir

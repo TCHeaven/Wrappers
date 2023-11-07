@@ -35,6 +35,7 @@ mkdir -p $WorkDir
 
 cp -s $Assembly $WorkDir/genome.fa
 cd $WorkDir
+ls -lh 
 
 source /nbi/software/staging/RCSUPPORT-2569/stagingloader
 source package /tgac/software/production/bin/abyss-1.3.5
@@ -49,7 +50,7 @@ echo error
 fi
 done
 
-scaff_reads -nodes 32  input.dat genome-BC_1.fastq.gz genome-BC_2.fastq.gz  
+scaff_reads -nodes 32 input.dat genome-BC_1.fastq.gz genome-BC_2.fastq.gz  
  
 scaff10x -nodes 32 -longread 1 genome.fa genome-BC_1.fastq.gz genome-BC_2.fastq.gz output_scaffolds.fasta
 
