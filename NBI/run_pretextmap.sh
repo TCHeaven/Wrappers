@@ -2,10 +2,10 @@
 #SBATCH --job-name=pretext
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 50G
+#SBATCH --mem 20G
 #SBATCH -c 32
-#SBATCH -p jic-medium
-#SBATCH --time=02-00:00:00
+#SBATCH -p jic-short
+#SBATCH --time=00-02:00:00
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
@@ -37,7 +37,7 @@ ls -lh
 source package 638df626-d658-40aa-80e5-14a275b7464b
 source /jic/software/staging/RCSUPPORT-2245/stagingloader
 
-samtools view -h sam.bam | PretextMap -o ${OutFile}.pretext --sortby length --sortorder descend --mapq 0 --highRes
+samtools view -h sam.bam | PretextMap -o ${OutFile}.pretext --sortby length --sortorder descend --mapq 10 --highRes
 
 cp ${OutFile}.pretext ${OutDir}/.
 

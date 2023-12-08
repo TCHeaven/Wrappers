@@ -42,36 +42,49 @@ source package 42a2e141-dade-4497-b4ce-79d1191da721
 source package 222eac79-310f-4d4b-8e1c-0cece4150333
 source package /tgac/software/production/bin/abyss-1.3.5
 
-htsbox samview -p bam.bam > bam.paf
-
 if [[ $Type = "long" ]]; then
+    htsbox samview -p bam.bam > bam.paf
+
     echo $Type
     pbcstat bam.paf
+
+    calcuts PB.stat > cutoffs
+    cat cutoffs
+
+    singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 ~/git_repos/Scripts/NBI/hist_plot.py -X 100 PB.stat PB.stat.hist.png
+
+    split_fa genome.fa > genome.fa.split
+    minimap2 -xasm5 -DP genome.fa.split genome.fa.split | gzip -c - > genome.fa.split.self.paf.gz
+
+    purge_dups -2 -T cutoffs -c PB.base.cov genome.fa.split.self.paf.gz > dups.bed 2> purge_dups.log
+
 elif [[ $Type = "short" ]]; then
     echo $Type
-    ngscstat bam.paf
+    ngscstat bam.bam
+
+    calcuts TX.stat > cutoffs
+    cat cutoffs
+
+    singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 ~/git_repos/Scripts/NBI/hist_plot.py -X 100 TX.stat TX.stat.hist.png
+
+    split_fa genome.fa > genome.fa.split
+    minimap2 -xasm5 -DP genome.fa.split genome.fa.split | gzip -c - > genome.fa.split.self.paf.gz
+
+    purge_dups -2 -T cutoffs -c TX.base.cov genome.fa.split.self.paf.gz > dups.bed 2> purge_dups.log
+
 else
     echo "Type unknown"
 fi
-
-calcuts PB.stat > cutoffs
-cat cutoffs
-
-singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 ~/git_repos/Scripts/NBI/hist_plot.py -X 100 PB.stat PB.stat.hist.png
-
-split_fa genome.fa > genome.fa.split
-minimap2 -xasm5 -DP genome.fa.split genome.fa.split | gzip -c - > genome.fa.split.self.paf.gz
-
-purge_dups -2 -T cutoffs -c PB.base.cov genome.fa.split.self.paf.gz > dups.bed 2> purge_dups.log
 
 get_seqs dups.bed genome.fa
 
 mv purged.fa ${OutFile}.fa
 mv PB.stat.hist.png ${OutFile}.PB.stat.hist.png
+mv TX.stat.hist.png ${OutFile}.TX.stat.hist.png
 mv hap.fa ${OutFile}.hap.fa
 mv purge_dups.log ${OutFile}.purge_dups.log
 abyss-fac ${OutFile}.fa > ${OutFile}.abyss_report.txt
 
 mv ${OutFile}* ${OutDir}/.
 echo DONE
-rm -r $WorkDir
+#rm -r $WorkDir

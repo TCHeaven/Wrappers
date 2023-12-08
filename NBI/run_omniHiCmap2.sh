@@ -18,7 +18,7 @@ OutDir=$3
 OutFile=$4
 Read1=$5
 Read2=$6
-
+cpu=32
 
 echo CurPth:
 echo $CurPath
@@ -30,7 +30,7 @@ echo Enzyme:
 echo $Enzyme
 echo Reads:
 echo $Read1
-echo Read2
+echo $Read2
 echo OutDir:
 echo $OutDir
 echo OutFile:
@@ -50,15 +50,34 @@ source package /tgac/software/testing/bin/preseq-3.1.2
 source package /tgac/software/testing/bin/pairtools-0.3.0
 source bwa-0.7.17
 
-samtools faidx genome.fa
-cut -f1,2 genome.fa.fai > genome.genome
+samtools import -@$cpu -r ID:$(basename $Read1 | cut -d '_' -f1,2) -r CN:$(basename $Read1 | cut -d '_' -f1,2 | cut -d '-' -f2) -r PU:$(basename $Read1 | cut -d '_' -f1,2) -r SM:$(basename $Read1 | cut -d '_' -f1,2 | cut -d '-' -f1) Fread.fq.gz Rread.fq.gz -o cram.cram
+samtools index -@$cpu cram.cram
 
+echo "Creating BWA index..."
 bwa index genome.fa
-bwa mem -5SP -T0 -t 32 genome.fa Fread.fq.gz Rread.fq.gz -o ${OutFile}.sam
-samtools view -@32 -bS ${OutFile}.sam -o ${OutFile}.bam
 
-cp ${OutFile}.bam ${OutDir}/. 
-#cp unsorted.bam ../${OutFile}_unsorted.bam
+echo "Mapping Illumina HiC reads..."
+FROM=0
+TO=$(cat cram.cram.crai | wc -l)
+if [ "$TO" -gt 10000 ]; then
+echo WARNING: very large HiC index file consider splitting
+fi
+singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/cram_filter.sif cram_filter -n $FROM-$TO cram.cram cram2.cram
+samtools fastq -@$cpu -F0xB00 -nt cram2.cram > bam1.bam
+bwa mem -T 10  -t $cpu -5SPC genome.fa bam1.bam -o bam2.bam
+samtools fixmate -mpu -@$cpu bam2.bam bam3.bam 
+samtools sort -@$cpu --write-index -l9 -o ${OutFile}.bam bam3.bam
+ls ${OutFile}.bam
+
+echo "Filtering BAM files..."
+samtools view -@$cpu -h ${OutFile}.bam | ~/git_repos/Scripts/NBI/filter_five_end.pl | samtools sort -@$cpu - > ${OutFile}_filtered.bam
+ls ${OutFile}_filtered.bam
+samtools markdup --write-index ${OutFile}_filtered.bam ${OutFile}_mapped.bam
+ls -lh
+
+cp ${OutFile}_mapped.bam ${OutDir}/. 
+cp ${OutFile}_mapped.bam.csi ${OutDir}/. 
 
 echo DONE
 rm -r $WorkDir
+

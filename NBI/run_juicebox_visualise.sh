@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=3ddna
+#SBATCH --job-name=juicer
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 80G
 #SBATCH -c 16
-#SBATCH -p jic-long
+#SBATCH -p jic-largemem
 #SBATCH --time=30-00:00:00
 
 CurPath=$PWD
@@ -37,7 +37,6 @@ mkdir -p $WorkDir
 ln -s $Assembly $WorkDir/genome.fa
 cd $WorkDir
 
-source package /tgac/software/production/bin/abyss-1.3.5
 source package fcb78328-af4f-424b-9916-c46bf8fab592
 source package 81c2d095-ba51-4eee-b471-19b7f3b1b117
 source samtools-1.9
@@ -56,24 +55,15 @@ ln -s $Read2 $WorkDir/juicer/fastq/read_R2.fastq.gz
 singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/juicer.sif juicer.sh -t 16 -d $WorkDir/juicer -g saundersiae -z genome_wrapped.fa -y ${OutFile}_Phase.txt -p genome_wrapped.fa.fai -D /opt/juicer-1.6.2/CPU
 cd juicer/aligned
 run-asm-pipeline.sh --build-gapped-map -m diploid --rounds 1 --editor-repeat-coverage 5 --editor-saturation-centile 10 ../../genome_wrapped.fa merged_nodups.txt
-
-abyss-fac $OutFile.FINAL.fasta > $OutDir/${OutFile}_abyss_report.txt
+#source lastz-1.03.73;source gnu_parallel-20180322;source jdk-1.7.0_25
+#~/git_repos/Scripts/NBI/run-assembly-visualizer.sh -q 10 ../../genome_wrapped.fa merged_nodups.txt
 
 ls -lh
 cd $WorkDir
 tree
 
-cd $CurPath
-mkdir -p $OutDir
-#cp -r $WorkDir/* $OutDir/.
-cp juicer/aligned/genome_wrapped.0.hic $OutDir/$OutFile.initial.hic
-cp juicer/aligned/genome_wrapped.polished.hic $OutDir/$OutFile.polished.hic
-cp juicer/aligned/genome_wrapped.FINAL.hic $OutDir/$OutFile.FINAL.hic
-cp juicer/aligned/genome_wrapped.FINAL.fasta $OutDir/$OutFile.FINAL.fasta
-cp juicer/aligned/genome_wrapped.0.assembly $OutDir/$OutFile.0.assembly
-cp juicer/aligned/genome_wrapped.FINAL.assembly $OutDir/$OutFile.FINAL.assembly
-cp juicer/aligned/genome_wrapped.final.assembly $OutDir/$OutFile.final.assembly
 
-rm $WorkDir
+#rm $WorkDir
 
 echo DONE
+

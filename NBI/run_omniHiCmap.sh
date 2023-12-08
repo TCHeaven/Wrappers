@@ -71,6 +71,7 @@ preseq lc_extrap -bam -pe -extrap 2.1e9 -step 1e8 -seg_len 1000000000 -output ou
 
 ls -lh
 
+cp genome.genome ${OutDir}/${OutFile}.genome
 cp mapped.pairs ${OutDir}/${OutFile}_mapped.pairs
 cp mapped.PT.bam ${OutDir}/${OutFile}_mapped.PT.bam
 cp mapped.PT.bam.bai ${OutDir}/${OutFile}_mapped.PT.bam.bai

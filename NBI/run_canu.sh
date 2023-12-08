@@ -4,7 +4,7 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 100G
 #SBATCH --nodes=1
-#SBATCH -c 4
+#SBATCH -c 64
 #SBATCH -p jic-long
 #SBATCH --time=30-00:00:00
 

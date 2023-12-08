@@ -1,16 +1,51 @@
 #!/bin/bash
-#SBATCH --job-name=picard
+#SBATCH --job-name=bash
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 60G
-#SBATCH -c 1
-#SBATCH -p jic-medium,jic-long
-#SBATCH --time=02-00:00:00
+#SBATCH --mem 200G
+#SBATCH -c 32
+#SBATCH -p jic-short
+#SBATCH --time=00-02:00:00
 
-source switch-institute ei
-source pilon-1.22
-source package 3e7beb4d-f08b-4d6b-9b6a-f99cc91a38f9
-source package /tgac/software/testing/bin/picardtools-2.1.1
+source package 638df626-d658-40aa-80e5-14a275b7464b
+cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/alignment/Myzus/persicae/WGBS/Archana_Mar2021/AT1_E2_1/bsmap
+#samtools view -@32 -h -o sam.sam AT1_E2_1_bsmap.bam
+samtools view -@32 -bS sam.sam | samtools sort -@32 -o sam.bam 
+samtools index -@32 sam.bam sam.bam.bai
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/tmp_57561455
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif sam2bam.sh NB9_E2_3_bsmap.sam
+
+#source package 638df626-d658-40aa-80e5-14a275b7464b
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/tmp_57561455
+#samtools view -@32 -h -o NB9_E2_3_bsmap.sam NB9_E2_3_bsmap.bam
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer
+#source jdk-1.7.0_25; source bwa-0.7.17;source samtools-1.6
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/juicer.sif juicer.sh -D /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer -d /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer -g OutFile -z references/T_apicales_880m_29_3_3.0_0.75_break_TellSeqPurged_pilon_scaff10xscaffolds_scaffolds_final.fa -y restriction_sites/OutFile_DpnII.txt -s DpnII -t 32 -p restriction_sites/OutFile_DpnII.chrom.sizes
+
+#source package 638df626-d658-40aa-80e5-14a275b7464b
+#source /jic/software/staging/RCSUPPORT-2245/stagingloader
+#PretextMap -o /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/T_apicales_880m_29_3_3.0_0.75_break_TellSeqPurged_pilon_scaff10xscaffolds_scaffolds_final_mapped.pairs.pretext --sortby length --sortorder descend --mapq 10 --highRes < /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/T_apicales_880m_29_3_3.0_0.75_break_TellSeqPurged_pilon_scaff10xscaffolds_scaffolds_final_mapped.pairs
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer/references
+#source bwa-0.7.17
+#bwa index T_apicales_880m_29_3_3.0_0.75_break_TellSeqPurged_pilon_scaff10xscaffolds_scaffolds_final.fa
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/tmp_57554577
+#source package 638df626-d658-40aa-80e5-14a275b7464b
+#samtools index NB9_E2_3_bsmap.bam
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif methratio.py -d genome.fa -o NB9_E2_3_bsmap_ratios.txt -u -p -z NB9_E2_3_bsmap.bam
+#python ~/git_repos/Scripts/NBI/methratio.py -d genome.fa -o NB9_E2_3_bsmap_ratios2.txt -u -p -z NB9_E2_3_bsmap.bam
+
+#source package 3e7beb4d-f08b-4d6b-9b6a-f99cc91a38f9
+#java17 -Xmx48000m -Djava.awt.headless=true -jar ~/git_repos/Scripts/NBI/juicer_tools_1.22.01.jar pre --threads 16 /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/purge_dups/yahs/scaff10x/T_apicales_880m_29_3_3.0_0.75_TellSeqPurged_scaffolds_final_scaff10xscaffolds_mapped.pairs /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/purge_dups/yahs/scaff10x/T_apicales_880m_29_3_3.0_0.75_TellSeqPurged_scaffolds_final_scaff10xscaffolds_contact_map.hic /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/purge_dups/yahs/scaff10x/T_apicales_880m_29_3_3.0_0.75_TellSeqPurged_scaffolds_final_scaff10xscaffolds.genome
+
+
+#source switch-institute ei
+#source pilon-1.22
+#source package 3e7beb4d-f08b-4d6b-9b6a-f99cc91a38f9
+#source package /tgac/software/testing/bin/picardtools-2.1.1
 
 #touch /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_anthrisci/hifiasm_19.5/820m/48/1/10.0/0.25/bwa/T_anthrisci_820m_48_1_10.0_0.25_sorted_markdups_HiC.bam
 #java17 -jar /tgac/software/testing/bin/core/../..//picardtools/2.1.1/x86_64/bin/picard.jar MarkDuplicates I=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_anthrisci/hifiasm_19.5/820m/48/1/10.0/0.25/bwa/T_anthrisci_820m_48_1_10.0_0.25_sorted_HiC.bam O=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_anthrisci/hifiasm_19.5/820m/48/1/10.0/0.25/bwa/T_anthrisci_820m_48_1_10.0_0.25_sorted_markdups_HiC.bam M=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_anthrisci/hifiasm_19.5/820m/48/1/10.0/0.25/bwa/marked_dup_metrics.txt

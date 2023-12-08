@@ -36,7 +36,8 @@ mkdir -p $WorkDir
 cp -s $Assembly $WorkDir/genome.fa
 cd $WorkDir
 
-source /nbi/software/staging/RCSUPPORT-2569/stagingloader
+#source /nbi/software/staging/RCSUPPORT-2569/stagingloader
+source package 19ae21f4-7ab2-49b6-b532-f50d560d6544
 source package /tgac/software/production/bin/abyss-1.3.5
 
 for Read in $(find $ReadDir/ -name "*.fastq.gz" -exec readlink -f {} \; | sort); do

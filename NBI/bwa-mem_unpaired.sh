@@ -69,4 +69,4 @@ ProgDir=~/git_repos/Wrappers/NBI
 sbatch $ProgDir/run_qualimap.sh ${OutDir}/${OutFile}.bam $Reference $OutDir 
 
 echo qualimap submitted
-#rm -r $WorkDir
+rm -r $WorkDir

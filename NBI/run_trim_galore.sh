@@ -19,6 +19,12 @@ Fread=$5
 Rread=$6
 Fread2=$7
 Rread2=$8
+Fread3=$9
+Rread3=${10}
+Fread4=${11}
+Rread4=${12}
+Fread5=${13}
+Rread5=${14}
 
 Sample=$(echo $OutDir | rev | cut -d '/' -f1 | rev)
 
@@ -40,14 +46,26 @@ echo Forward reads 2:
 echo $Fread2
 echo Reverse read 2:
 echo $Rread2
+echo Forward reads 3:
+echo $Fread3
+echo Reverse read 3:
+echo $Rread3
+echo Forward reads 4:
+echo $Fread4
+echo Reverse read 4:
+echo $Rread4
+echo Forward reads 5:
+echo $Fread5
+echo Reverse read 5:
+echo $Rread5
 
 echo _
 echo _
 
 mkdir -p $WorkDir
 
-zcat $Fread $Fread2 | gzip > $WorkDir/F.fq.gz
-zcat $Rread $Rread2 | gzip > $WorkDir/R.fq.gz
+zcat $Fread $Fread2 $Fread3 $Fread4 $Fread5 | gzip > $WorkDir/F.fq.gz
+zcat $Rread $Rread2 $Rread3 $Rread4 $Rread5 | gzip > $WorkDir/R.fq.gz
 
 cd $WorkDir
 
@@ -62,14 +80,15 @@ cp F_val_1.fq.gz ${OutDir}/${OutFile}_1.fq.gz
 cp R_val_2.fq.gz ${OutDir}/${OutFile}_2.fq.gz
 
 #NOTE: to save space the script has been edited to save files to delete input files. 
-if [ -e ${OutDir}/${OutFile}_1.fq.gz ] && [ -e ${OutDir}/${OutFile}_2.fq.gz ]; then
-rm $Rread
-rm $Rread2
-rm $Fread
-rm $Fread2
-else
-echo Outputs not detected
-fi
+#if [ -e ${OutDir}/${OutFile}_1.fq.gz ] && [ -e ${OutDir}/${OutFile}_2.fq.gz ]; then
+#rm $Rread
+#rm $Rread2
+#rm $Fread
+#rm $Fread2
+#else
+#echo Outputs not detected
+#fi
 
+ls -lh
 echo DONE
 rm -r $WorkDir

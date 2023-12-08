@@ -59,4 +59,4 @@ cp ${OutFile}_scaffolds_final.agp ${OutDir}/.
 cp ${OutFile}_scaffolds_final.fa ${OutDir}/.
 
 echo DONE
-#rm -r $WorkDir
+rm -r $WorkDir
