@@ -2,16 +2,143 @@
 #SBATCH --job-name=bash
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 200G
-#SBATCH -c 32
-#SBATCH -p jic-short
-#SBATCH --time=00-02:00:00
+#SBATCH --mem 150G
+#SBATCH -c 4
+#SBATCH -p jic-medium,jic-long
+#SBATCH --time=2-00:00:00
 
-source package 638df626-d658-40aa-80e5-14a275b7464b
-cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/alignment/Myzus/persicae/WGBS/Archana_Mar2021/AT1_E2_1/bsmap
+forward=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Archana_Dec2020/*/*/trim_galore/**1.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Archana/*/*/trim_galore/*1.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Myzus_persicae_O_9_species_host_swap/*/*/*1.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Mpersicae_organ_RNAseq/trim_galore/*/*1.fq.gz | tr '\n' ',' | sed 's/,$//')
+reverse=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Archana_Dec2020/*/*/trim_galore/*2.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Archana/*/*/trim_galore/*2.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Myzus_persicae_O_9_species_host_swap/*/*/*2.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Mpersicae_organ_RNAseq/trim_galore/*/*2.fq.gz | tr '\n' ',' | sed 's/,$//') 
+
+#Trinity is using a huge amount of hard drive space + appears to be amking 3 trimmed files for every input?.
+source package 09da5776-7777-44d1-9fac-4c372b38fd37
+Trinity --single $1 --output ${1}.out --CPU 4 --max_memory 100G --run_as_paired --seqType fa --trinity_complete --full_cleanup --min_kmer_cov 2 --verbose --bflyHeapSpaceMax 100G
+
+#Trinity --full_cleanup --seqType fq --CPU 64 --max_memory 4030G --min_kmer_cov 2 --normalize_by_read_set --verbose --FORCE \
+#--left $forward \
+#--right $reverse \
+#--output /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/M_persicae_trinity_transcriptome
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae
+#echo test > temp_largememtest.txt
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer
+#source jdk-1.7.0_25; source bwa-0.7.17;source samtools-1.6; source gnu_parallel-20180322
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/juicer.sif juicer.sh -D /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer -d /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer -g OutFile -z references/T_apicales_880m_29_3_3.0_0.75_break_TellSeqPurged_pilon_scaff10xscaffolds_scaffolds_final.fa -y restriction_sites/OutFile_DpnII.txt -s DpnII -t 64 -p restriction_sites/OutFile_DpnII.chrom.sizes
+
+#awk: fatal: can't open source file `/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer/scripts/common/chimeric_blacklist.awk' for reading (No such file or directory)
+
+#source package 638df626-d658-40aa-80e5-14a275b7464b
+#source package /tgac/software/testing/bin/preseq-3.1.2
+#source package /tgac/software/testing/bin/pairtools-0.3.0
+#source bwa-0.7.17
+
+#WorkDir=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/temp_short_omni
+
+#cpu=64
+
+#Assembly=$1
+#Enzyme=$2
+#OutDir=$3
+#OutFile=$4
+#Read1=$5
+#Read2=$6
+
+#ln -s $Assembly $WorkDir/genome.fa
+#ln -s $Read1 $WorkDir/Fread.fq.gz
+#ln -s $Read2 $WorkDir/Rread.fq.gz
+#cd $WorkDir
+
+#echo "Creating BWA index..."
+#bwa index genome.fa
+
+#samtools import -@ $cpu -r ID:$(basename $Read1 | cut -d '_' -f1,2) -r CN:$(basename $Read1 | cut -d '_' -f1,2 | cut -d '-' -f2) -r PU:$(basename $Read1 | cut -d '_' -f1,2) -r SM:$(basename $Read1 | cut -d '_' -f1,2 | cut -d '-' -f1) Fread.fq.gz Rread.fq.gz -o cram.cram
+#samtools index -@ $cpu cram.cram
+
+##map reads
+#count=1
+#echo "Mapping Illumina HiC reads..."
+
+#CRAM_FILTER="singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/cram_filter.sif cram_filter"
+#for i in $(ls cram.cram); do
+#    CRINDEX=$i.crai
+#    CFROM=0
+#    CTO=10000
+#    NCONTAINERS=`zcat $CRINDEX |wc -l`
+
+#    if [ "$NCONTAINERS" == "0" ]; then
+#	echo "can't find HiC reads in $CRINDEX"
+#	exit 1
+#    fi
+
+#    while [ "$CFROM" -le "$NCONTAINERS" ]; do
+#        if [ "$CTO" -gt "$NCONTAINERS" ]; then
+#          CTO=$NCONTAINERS
+#        fi
+#        $CRAM_FILTER -n $CFROM-$CTO $i - | samtools fastq -@ $cpu -F0xB00 -nt - | bwa mem -T 10 -t $cpu -5SPCp genome.fa - | samtools fixmate -mpu -@ $cpu - - | samtools sort -@ $cpu --write-index -l9 -o ${OutFile}.${count}.align.bam -
+#        ((count++))
+#        CFROM=$((CTO+1 ))
+#        CTO=$((CFROM+9999))
+#    done
+#done
+
+#myFilter=~/git_repos/Scripts/NBI/filter_five_end.pl
+#if [[ -f "$myFilter" ]]; then
+#	count=1
+#	echo "Filtering BAM files..."
+#	for i in `ls -1 *.align.bam`
+#		do
+#			samtools view -@ $cpu -h $i | $myFilter | samtools sort -@ $cpu - > ${OutFile}.${count}.filtered.bam
+#		((count++))
+#		done
+#	if [[ ! -f ${OutFile}.1.filtered.bam ]]; then
+#		echo "${OutFile}.1.filtered.bam doesn't exist." 
+#	exit 1
+#	fi
+	#rm *.align.bam
+#fi
+
+#if [ `ls -1 *filtered.bam | wc -l` -gt 1 ]; then
+#	echo "Merging BAM files..."
+#	ls -1 *filtered.bam > bamlist
+#	samtools merge -@ $cpu -cpu -b bamlist - |samtools markdup -@ $cpu --write-index - ${OutFile}_mapped.bam
+#else
+#	samtools markdup -@ $cpu --write-index ${OutFile}.1.*.bam ${OutFile}_mapped.bam
+#fi
+
+#source bwa-0.7.17
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_urticae/canu/715m/purge_dups/
+#source package 0567474a-7a7f-40c6-9f91-6272b934f8a4
+#Assembly=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_urticae/canu/715m/purge_dups/T_urticae_715m.contigs_TellSeqPurged.fa
+#AssemblyIndex=$(echo $Assembly).fai
+#MappingFile=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_urticae/canu/715m/bwa/T_urticae_715m.contigs_Tellseq_trimmed_2.bam
+#purge_haplotigs hist -b $MappingFile -g $Assembly -t 1
+
+#Assembly=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_urticae/canu/715m/purge_dups/T_urticae_715m.contigssta_HiFiPurged.fa
+#AssemblyIndex=$(echo $Assembly).fai
+#MappingFile=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_urticae/canu/715m/minimap2/T_urticae_715m.contigs.bam
+#purge_haplotigs hist -b $MappingFile -g $Assembly -t 32
+
+#bwa index T_urticae_715m.contigs_TellSeqPurged.fa
+#bwa index T_urticae_715m.contigssta_HiFiPurged.fa
+
+#source package 638df626-d658-40aa-80e5-14a275b7464b
+#samtools faidx T_urticae_715m.contigs_TellSeqPurged.fa
+#samtools faidx T_urticae_715m.contigssta_HiFiPurged.fa
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_urticae/canu/715m/minimap2/
+#samtools sort -o T_urticae_715m.contigs.bam T_urticae_715m.contigs.bam
+#samtools index T_urticae_715m.contigs.bam
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_urticae/canu/715m/minimap2
+#samtools index T_urticae_715m.contigs.bam
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_urticae/canu/715m/bwa/
+#samtools index T_urticae_715m.contigs_Tellseq_trimmed_2.bam
+
+#source package 638df626-d658-40aa-80e5-14a275b7464b
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/alignment/Myzus/persicae/WGBS/Archana_Mar2021/AT1_E2_1/bsmap
 #samtools view -@32 -h -o sam.sam AT1_E2_1_bsmap.bam
-samtools view -@32 -bS sam.sam | samtools sort -@32 -o sam.bam 
-samtools index -@32 sam.bam sam.bam.bai
+#samtools view -@32 -bS sam.sam | samtools sort -@32 -o sam.bam 
+#samtools index -@32 sam.bam sam.bam.bai
 
 #cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/tmp_57561455
 #singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif sam2bam.sh NB9_E2_3_bsmap.sam
@@ -19,10 +146,6 @@ samtools index -@32 sam.bam sam.bam.bai
 #source package 638df626-d658-40aa-80e5-14a275b7464b
 #cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/tmp_57561455
 #samtools view -@32 -h -o NB9_E2_3_bsmap.sam NB9_E2_3_bsmap.bam
-
-#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer
-#source jdk-1.7.0_25; source bwa-0.7.17;source samtools-1.6
-#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/juicer.sif juicer.sh -D /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer -d /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/pilon/scaff10x/yahs/juicer -g OutFile -z references/T_apicales_880m_29_3_3.0_0.75_break_TellSeqPurged_pilon_scaff10xscaffolds_scaffolds_final.fa -y restriction_sites/OutFile_DpnII.txt -s DpnII -t 32 -p restriction_sites/OutFile_DpnII.chrom.sizes
 
 #source package 638df626-d658-40aa-80e5-14a275b7464b
 #source /jic/software/staging/RCSUPPORT-2245/stagingloader

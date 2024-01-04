@@ -57,22 +57,22 @@ singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/juic
 cd juicer/aligned
 run-asm-pipeline.sh --build-gapped-map -m diploid --rounds 1 --editor-repeat-coverage 5 --editor-saturation-centile 10 ../../genome_wrapped.fa merged_nodups.txt
 
-abyss-fac $OutFile.FINAL.fasta > $OutDir/${OutFile}_abyss_report.txt
-
 ls -lh
 cd $WorkDir
 tree
 
-cd $CurPath
 mkdir -p $OutDir
 #cp -r $WorkDir/* $OutDir/.
 cp juicer/aligned/genome_wrapped.0.hic $OutDir/$OutFile.initial.hic
 cp juicer/aligned/genome_wrapped.polished.hic $OutDir/$OutFile.polished.hic
 cp juicer/aligned/genome_wrapped.FINAL.hic $OutDir/$OutFile.FINAL.hic
 cp juicer/aligned/genome_wrapped.FINAL.fasta $OutDir/$OutFile.FINAL.fasta
-cp juicer/aligned/genome_wrapped.0.assembly $OutDir/$OutFile.0.assembly
+cp juicer/aligned/genome_wrapped.0.assembly $OutDir/$OutFile.initial.assembly
 cp juicer/aligned/genome_wrapped.FINAL.assembly $OutDir/$OutFile.FINAL.assembly
 cp juicer/aligned/genome_wrapped.final.assembly $OutDir/$OutFile.final.assembly
+
+cd $OutDir
+abyss-fac $OutFile.FINAL.fasta > ${OutFile}_abyss_report.txt
 
 rm $WorkDir
 

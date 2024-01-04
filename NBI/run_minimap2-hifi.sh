@@ -36,7 +36,7 @@ ln -s ${5} $WorkDir/read2.fq.gz
 ln -s $Reference $WorkDir/reference.fasta
 
 cd $WorkDir
-source package 222eac79-310f-4d4b-8e1c-0cece4150333
+source package /tgac/software/testing/bin/minimap2-2.24
 minimap2 -ax map-hifi reference.fasta read1.fq.gz read2.fq.gz > aln.sam
 
 source package 638df626-d658-40aa-80e5-14a275b7464b

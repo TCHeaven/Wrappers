@@ -10,37 +10,37 @@
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
-InFile=$1
-OutDir=$2
-OutFile=$3
+OutDir=$1
+OutFile=$2
+Fread=$3
+Rread=$4
 
 echo CurPth:
 echo $CurPath
 echo WorkDir:
 echo $WorkDir
-echo InFile:
-echo $InFile
 echo OutDir:
 echo $OutDir
 echo OutFile:
 echo $OutFile
+echo ReadFiles:
+echo $Fread
+echo $Rread
 
 echo _
 echo _
 
 mkdir -p $WorkDir
 
-ln -s $InFile $WorkDir/${OutFile}.fq.gz
+ln -s $Fread $WorkDir/fastq1.fq.gz
+ln -s $Rread $WorkDir/fastq2.fq.gz
 
 cd $WorkDir
 
 source package a138abc4-ed60-4774-8db8-80b4770b1710
 
-fastqc -t 16 --nogroup --extract ${OutFile}.fq.gz
+fastqc -t 16 --extract -o . fastq1.fq.gz fastq2.fq.gz
 
-cp *.html $OutDir/.
-cp ${OutFile}_fastqc/fastqc_data.txt ${OutDir}/${OutFile}_data.txt
-cp ${OutFile}_fastqc/summary.txt ${OutDir}/${OutFile}_summary.txt
 echo DONE
-rm -r $WorkDir
+#rm -r $WorkDir
 

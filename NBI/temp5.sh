@@ -2,99 +2,200 @@
 #SBATCH --job-name=bash
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 50G
-#SBATCH -c 32
-#SBATCH -p jic-medium,jic-long
-#SBATCH --time=02-00:00:00
+#SBATCH --mem 500G
+#SBATCH -c 1
+#SBATCH -p jic-long
+#SBATCH --time=07-00:00:00
 
-  ProjDir=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae
-  cd $ProjDir
-  IsolateAbrv=30_aphid
-  WorkDir=analysis/orthology/orthofinder/$IsolateAbrv
-  mkdir -p $WorkDir
-  mkdir -p $WorkDir/formatted
-  mkdir -p $WorkDir/goodProteins
-  mkdir -p $WorkDir/badProteins  
+singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsseq1.38.0.sif R --save <<EOF 
 
-source package /nbi/software/production/bin/porthomcl-40f497e
+#Convert from bsmap format to bsseq input format. 
 
-Taxon_code=ACYpis
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Acyrthosiphon_pisum/JIC1_v1/Acyrthosiphon_pisum_JIC1_v1.0.scaffolds.braker2.gff.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+library(bsseq)
 
-Taxon_code=APHfab
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_fabae/JIC1_v2/Aphis_fabae_JIC1_v2.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+read.bsmap <- function(file) {
+    dat <- read.table(
+        file,
+        skip = 1,
+        row.names = NULL,
+        col.names = c("chr", "pos", "strand", "context", "ratio", "eff_CT_count", "C_count", "CT_count", "rev_G_count", "rev_GA_count", "CI_lower", "CI_upper"),
+        colClasses = c("character", "integer", "character", "character", "numeric", "numeric", "integer", "integer", "integer", "integer", "numeric", "numeric"))
+    #remove all non-CpG calls.  This includes SNPs
+    dat <- dat[dat$context == "CG", ]
+    dat$context <- NULL
+    dat$chr <- paste("chr", dat$chr, sep = "")
+    #join separate lines for each strand
+    print(dim(dat))
+	print(str(dat))
+    tmp <- dat[dat$strand == "+", ]
+    BS.forward <- BSseq(
+        pos = tmp$pos,
+        chr = tmp$chr,
+        M = as.matrix(tmp$C_count, ncol = 1),
+        Cov = as.matrix(tmp$CT_count, ncol = 1),
+        sampleNames = "forward")
+    tmp <- dat[dat$strand == "-", ]
+    BS.reverse <- BSseq(
+        pos = tmp$pos - 1L,
+        chr = tmp$chr,
+        M = as.matrix(tmp$C_count, ncol = 1),
+        Cov = as.matrix(tmp$CT_count, ncol = 1),
+        sampleNames = "reverse")
+    BS <- combine(BS.forward, BS.reverse)
+    BS <- collapseBSseq(BS, group = c("a", "a"), type = "integer")
+    BS
+}
 
-Taxon_code=APHgly
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_glycines/biotype_4_v3/Aphis_glycines_4.v3.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+# List all the files
+file_paths <- list.files("/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/alignment/Myzus/persicae/WGBS/Archana_Mar2021/", pattern = "bsmap_ratios_filtered.txt", recursive = TRUE, full.names = TRUE)
 
-Taxon_code=APHgos
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_gossypii/JIC1_v1/Aphis_gossypii_JIC1_v1.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+# Loop through each file and combine
+bs_objects <- list()
 
-Taxon_code=APHrum
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_rumicis/v1/Aphis_rumicis_v1.scaffolds.braker_gthr.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+for (file_path in file_paths) {
+  sample_name <- sub("_bsmap_ratios_filtered", "", tools::file_path_sans_ext(basename(file_path)))
+  assign(paste0("BS.", sample_name), read.bsmap(file_path))
+  bs_objects[[sample_name]] <- get(paste0("BS.", sample_name))
+  sampleNames(bs_objects[[sample_name]]) <- sample_name
+}
 
-Taxon_code=APHtha
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_thalictri/v1/Aphis_thalictri_v1.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+BS.hostswap <- do.call(combine, bs_objects)
 
-Taxon_code=BRAcar
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Brachycaudus_cardui/v1.1/Brachycaudus_cardui_v1.1.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Add replicate information
+pData(BS.hostswap)$Rep <- c("replicate1", "replicate2", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2", "replicate3", "replicate1", "replicate2")
+validObject(BS.hostswap)
+pData(BS.hostswap)
 
-Taxon_code=BRAhel
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Brachycaudus_helichrysi/v1.1/Brachycaudus_helichrysi_v1.1.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Save to file
+save(BS.hostswap, file = "BS.hostswap.rda")
+tools::resaveRdaFiles("BS.hostswap.rda")
 
-Taxon_code=BRAklu
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Brachycaudus_klugkisti/v1.1/Brachycaudus_klugkisti_v1.1.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+EOF
+#temp=$(dirname $1)/0_$(basename $1)
+#awk '!/^chr/ && $5 == 0.000' $1 > $temp
+#LC_COLLATE=C sort -k1,1 -k2,2n $temp > $(dirname $temp)/$(basename $temp | sed 's@.txt@_sorted.txt@g') 
 
-Taxon_code=BREbra
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Brevicoryne_brassicae/v2/Brevicoryne_brassicae_v2.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#awk '!/^chr/ && $6 >= 2' $1 > $(dirname $1)/gooddepth2_$(basename $1)
+#LC_COLLATE=C sort -k1,1 -k2,2n $1 > $(dirname $1)/$(basename $1 | sed 's@.txt@_sorted.txt@g')
 
-Taxon_code=CINced
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Cinara_cedri/v1/cinced3A.pep.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#head -n 1 $1 > $(dirname $1)/$(basename $1 | sed 's@.txt@2.txt@g')
+#grep -F -w -f common_ids_000.txt $1 >> $(dirname $1)/$(basename $1 | sed 's@.txt@_filtered.txt@g')
+#grep -v -F -w -f common_ids0.txt $1 >> $(dirname $1)/$(basename $1 | sed 's@.txt@2.txt@g') 
 
-Taxon_code=DAKvit
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Daktulosphaira_vitifoliae/INRAPcf7_v5/Daktulosphaira_vitifoliae_INRAPcf7_v5.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/genmap1.3.0.sif genmap index -F genome.fa -I index -v
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/genmap1.3.0.sif genmap map -T 16 -K 30 -E 2 -I index -O . -t -w -bg -v
 
-Taxon_code=DIUnox
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Diuraphis_noxia/SAM_v1.1/Diuraphis_noxia_SAM.v1.1.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae
+#cat ~/git_repos/Scripts/NBI/filter_bsmap_4.py
+#echo __
+#echo __
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 ~/git_repos/Scripts/NBI/filter_bsmap_4.py temp_file_list.txt
+
+
+
+#mkdir /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_persicae/O_v2/GenomeDir
+#source package 266730e5-6b24-4438-aecb-ab95f1940339
+#STAR --runMode genomeGenerate --runThreadN 32 \
+#--genomeDir /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_persicae/O_v2/GenomeDir \
+#--genomeFastaFiles /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_persicae/O_v2/Myzus_persicae_O_v2.0.scaffolds.fa \
+#--sjdbGTFfile /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_persicae/O_v2/MYZPE13164_O_EIv2.1.annotation.gff3.gtf --sjdbOverhang 150
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/raw_data/Myzus/persicae/WGBS
+#zip -r Archana_Mar2021.zip Archana_Mar2021
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae
+
+#unzip singh.zip
+#unzip wouters.zip
+
+#  ProjDir=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae
+#  cd $ProjDir
+#  IsolateAbrv=30_aphid
+#  WorkDir=analysis/orthology/orthofinder/$IsolateAbrv
+#  mkdir -p $WorkDir
+#  mkdir -p $WorkDir/formatted
+#  mkdir -p $WorkDir/goodProteins
+#  mkdir -p $WorkDir/badProteins  
+
+#source package /nbi/software/production/bin/porthomcl-40f497e
+
+#Taxon_code=ACYpis
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Acyrthosiphon_pisum/JIC1_v1/Acyrthosiphon_pisum_JIC1_v1.0.scaffolds.braker2.gff.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=APHfab
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_fabae/JIC1_v2/Aphis_fabae_JIC1_v2.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=APHgly
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_glycines/biotype_4_v3/Aphis_glycines_4.v3.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=APHgos
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_gossypii/JIC1_v1/Aphis_gossypii_JIC1_v1.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=APHrum
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_rumicis/v1/Aphis_rumicis_v1.scaffolds.braker_gthr.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=APHtha
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Aphis_thalictri/v1/Aphis_thalictri_v1.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=BRAcar
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Brachycaudus_cardui/v1.1/Brachycaudus_cardui_v1.1.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=BRAhel
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Brachycaudus_helichrysi/v1.1/Brachycaudus_helichrysi_v1.1.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=BRAklu
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Brachycaudus_klugkisti/v1.1/Brachycaudus_klugkisti_v1.1.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=BREbra
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Brevicoryne_brassicae/v2/Brevicoryne_brassicae_v2.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=CINced
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Cinara_cedri/v1/cinced3A.pep.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=DAKvit
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Daktulosphaira_vitifoliae/INRAPcf7_v5/Daktulosphaira_vitifoliae_INRAPcf7_v5.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+
+#Taxon_code=DIUnox
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Diuraphis_noxia/SAM_v1.1/Diuraphis_noxia_SAM.v1.1.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
 #Taxon_code=DREpla
 #Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Drepanosiphum_platanoidis/)
@@ -102,59 +203,59 @@ mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 #orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
 #mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=ERIlan
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Eriosoma_lanigerum/v1/Eriosoma_lanigerum_v1.0.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=ERIlan
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Eriosoma_lanigerum/v1/Eriosoma_lanigerum_v1.0.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=HORcor
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Hormaphis_cornu/v1/Augustus.updated_w_annots.21Aug20.gff3.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=HORcor
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Hormaphis_cornu/v1/Augustus.updated_w_annots.21Aug20.gff3.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=MACalb
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Macrosiphum_albifrons/v1/Macrosiphum_albifrons_v1.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=MACalb
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Macrosiphum_albifrons/v1/Macrosiphum_albifrons_v1.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=METdir
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Metopolophium_dirhodum/JIC1_v1.1/Metopolophium_dirhodum_UK035_v1.1.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=METdir
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Metopolophium_dirhodum/JIC1_v1.1/Metopolophium_dirhodum_UK035_v1.1.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=MYZcer
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_cerasi/Thorpe_v1.2/Myzus_cerasi_v1.2.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=MYZcer
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_cerasi/Thorpe_v1.2/Myzus_cerasi_v1.2.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=MYZlig
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_ligustri/v1.1/Myzus_ligustri_v1.1.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=MYZlig
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_ligustri/v1.1/Myzus_ligustri_v1.1.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=MYZlyt
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_lythri/v1.1/Myzus_lythri_v1.1.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=MYZlyt
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_lythri/v1.1/Myzus_lythri_v1.1.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=MYZper
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_persicae/O_v2/MYZPE13164_O_EIv2.1.annotation.gff3.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=MYZper
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_persicae/O_v2/MYZPE13164_O_EIv2.1.annotation.gff3.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=MYZvar
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_varians/v1.1/Myzus_varians_v1.1.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=MYZvar
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Myzus_varians/v1.1/Myzus_varians_v1.1.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
 #Taxon_code=PEMphi
 #Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Pemphigus_spyrothecae/)
@@ -162,71 +263,71 @@ mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 #orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
 #mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=PENnig
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Pentalonia_nigronervosa/v1/Pentalonia_nigronervosa.v1.scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=PENnig
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Pentalonia_nigronervosa/v1/Pentalonia_nigronervosa.v1.scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=PHOcan
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Phorodon_cannabis/v1/Phorodon_cannabis_v1.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=PHOcan
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Phorodon_cannabis/v1/Phorodon_cannabis_v1.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=PHOhum
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Phorodon_humuli/v2/Phorodon_humuli_v2_scaffolds.braker.filtered.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=PHOhum
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Phorodon_humuli/v2/Phorodon_humuli_v2_scaffolds.braker.filtered.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=RHOmai
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Rhopalosiphum_maidis/v1/rmaidis_v2.gff3.prot.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=RHOmai
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Rhopalosiphum_maidis/v1/rmaidis_v2.gff3.prot.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=RHOpad
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Rhopalosiphum_padi/JIC1_v1/Rhopalosiphum_padi_JIC1_v1.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=RHOpad
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Rhopalosiphum_padi/JIC1_v1/Rhopalosiphum_padi_JIC1_v1.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=SCHchi
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Schlechtendalia_chinensis/v1/proteins.fasta)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=SCHchi
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Schlechtendalia_chinensis/v1/proteins.fasta)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=SITave
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Sitobion_avenae/JIC1_v2.1/Sitobion_avenae_JIC1_v2.1.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=SITave
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Sitobion_avenae/JIC1_v2.1/Sitobion_avenae_JIC1_v2.1.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=SITfra
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Sitobion_fragariae/v1/Sitobion_fragariae_v1.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=SITfra
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Sitobion_fragariae/v1/Sitobion_fragariae_v1.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
-Taxon_code=SITmis
-Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Sitobion_miscanthi/v2/Sitobion_miscanthi_v2.scaffolds.braker.aa.fa)
-Id_field=1
-orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
-mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
+#Taxon_code=SITmis
+#Fasta_file=$(ls /jic/research-groups/Saskia-Hogenhout/Tom_Mathers/aphid_genomes_db/Sitobion_miscanthi/v2/Sitobion_miscanthi_v2.scaffolds.braker.aa.fa)
+#Id_field=1
+#orthomclAdjustFasta  $Taxon_code $Fasta_file $Id_field
+#mv "$Taxon_code".fasta $WorkDir/formatted/"$Taxon_code".fasta
 
 
-for Dir in $(ls -d analysis/orthology/orthofinder/$IsolateAbrv); do
-Input_dir=$Dir/formatted
-Min_length=10
-Max_percent_stops=20
-Good_proteins_file=$Dir/goodProteins/goodProteins.fasta
-Poor_proteins_file=$Dir/badProteins/poorProteins.fasta
-orthomclFilterFasta $Input_dir $Min_length $Max_percent_stops $Good_proteins_file $Poor_proteins_file
-done
+#for Dir in $(ls -d analysis/orthology/orthofinder/$IsolateAbrv); do
+#Input_dir=$Dir/formatted
+#Min_length=10
+#Max_percent_stops=20
+#Good_proteins_file=$Dir/goodProteins/goodProteins.fasta
+#Poor_proteins_file=$Dir/badProteins/poorProteins.fasta
+#orthomclFilterFasta $Input_dir $Min_length $Max_percent_stops $Good_proteins_file $Poor_proteins_file
+#done
 
-sbatch ~/git_repos/Wrappers/NBI/run_orthofinder.sh $WorkDir 
+#sbatch ~/git_repos/Wrappers/NBI/run_orthofinder.sh $WorkDir 
 #57518180
 
 #OrthogroupsTxt=$WorkDir/formatted/OrthoFinder/*/Orthogroups/Orthogroups.txt
