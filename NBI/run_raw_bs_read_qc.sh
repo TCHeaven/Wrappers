@@ -2,10 +2,10 @@
 #SBATCH --job-name=qualimap
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 32G
+#SBATCH --mem 50G
 #SBATCH -c 16
 #SBATCH -p jic-medium, nbi-medium
-#SBATCH --time=1-00:00:00
+#SBATCH --time=2-00:00:00
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
@@ -116,7 +116,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz fastq7.fq.gz fastq9.fq.gz | gzip > fastq13579.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz fastq8.fq.gz fastq10.fq.gz | gzip > fastq246810.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -158,7 +158,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz fastq7.fq.gz | gzip > fastq1357.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz fastq8.fq.gz | gzip > fastq2468.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -194,7 +194,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz | gzip > fastq135.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz | gzip > fastq246.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -224,7 +224,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		zcat fastq1.fq.gz fastq3.fq.gz | gzip > fastq13.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz | gzip > fastq24.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -244,7 +244,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		mv stdin_fastqc.html ${OutDir}/fastqc/${OutFile2}_fastqc.html
 
 		bwa index genome.fa
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -261,7 +261,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		mv stdin_fastqc.html ${OutDir}/fastqc/${OutFile1}_fastqc.html
 
 		bwa index genome.fa
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -311,7 +311,7 @@ else
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz fastq7.fq.gz fastq9.fq.gz | gzip > fastq13579.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz fastq8.fq.gz fastq10.fq.gz | gzip > fastq246810.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -353,7 +353,7 @@ else
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz fastq7.fq.gz | gzip > fastq1357.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz fastq8.fq.gz | gzip > fastq2468.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -389,7 +389,7 @@ else
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz | gzip > fastq135.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz | gzip > fastq246.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -419,7 +419,7 @@ else
 		zcat fastq1.fq.gz fastq3.fq.gz | gzip > fastq13.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz | gzip > fastq24.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -439,7 +439,7 @@ else
 		mv stdin_fastqc.html ${OutDir}/fastqc/${OutFile2}_fastqc.html
 
 		bwa index genome.fa
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -453,16 +453,7 @@ else
 		echo FastQC of $Fread
 		OutFile1=$(basename -a $Fread | cut -d '.' -f1)
 		zcat fastq1.fq.gz | fastqc -t 16 stdin 
-		mv stdin_fastqc.html ${OutDir}/fastqc/${OutFile1}_fastqc.html
-
-		bwa index genome.fa
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a Fread.fa -b Rread.fa -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
-		samtools view -@16 -bS sam.sam > sam.bam
-		samtools sort -@16 sam.bam -o sorted_sam.bam
-
-		mkdir ${OutDir}/qualimap
-		qualimap bamqc -nt 16 -bam sorted_sam.bam -c --java-mem-size=30G -outformat PDF -outdir ${OutDir}/qualimap -outfile ${OutFile1}_qualimap.pdf 
-		mv ${OutDir}/qualimap/genome_results.txt ${OutDir}/qualimap/${OutFile1}_genome_results.txt 
+		mv stdin_fastqc.html ${OutDir}/fastqc/${OutFile1}_fastqc.html 
 	fi
 fi
 

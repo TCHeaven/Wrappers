@@ -1,18 +1,21 @@
 #!/bin/bash
-#SBATCH --job-name=bash
+#SBATCH --job-name=trinity
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 150G
-#SBATCH -c 4
-#SBATCH -p jic-medium,jic-long
-#SBATCH --time=2-00:00:00
+#SBATCH -c 1
+#SBATCH -p jic-long
+#SBATCH --time=30-00:00:00
+
+#source package a684a2ed-d23f-4025-aa81-b21e27e458df
+#cpgplot -sequence /jic/research-groups/Saskia-Hogenhout/TCHeaven/Genomes/Myzus/persicae/O_v2/Myzus_persicae_O_v2.0.scaffolds.fa -window 100 -minlen 200 -minoe 0.6 -minpc 50. -graph cps -cg -pc -obsexp -outfile /jic/research-groups/Saskia-Hogenhout/TCHeaven/Genomes/Myzus/persicae/O_v2/MYZPE13164_O_EIv2.1.cpgplot -outfeat /jic/research-groups/Saskia-Hogenhout/TCHeaven/Genomes/Myzus/persicae/O_v2/MYZPE13164_O_EIv2.1.cpg.gff
 
 forward=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Archana_Dec2020/*/*/trim_galore/**1.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Archana/*/*/trim_galore/*1.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Myzus_persicae_O_9_species_host_swap/*/*/*1.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Mpersicae_organ_RNAseq/trim_galore/*/*1.fq.gz | tr '\n' ',' | sed 's/,$//')
 reverse=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Archana_Dec2020/*/*/trim_galore/*2.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Archana/*/*/trim_galore/*2.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Myzus_persicae_O_9_species_host_swap/*/*/*2.fq.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae/dna_qc/Myzus/persicae/RNA_Seq/Mpersicae_organ_RNAseq/trim_galore/*/*2.fq.gz | tr '\n' ',' | sed 's/,$//') 
 
-#Trinity is using a huge amount of hard drive space + appears to be amking 3 trimmed files for every input?.
+Trinity is using a huge amount of hard drive space + appears to be amking 3 trimmed files for every input?.
 source package 09da5776-7777-44d1-9fac-4c372b38fd37
-Trinity --single $1 --output ${1}.out --CPU 4 --max_memory 100G --run_as_paired --seqType fa --trinity_complete --full_cleanup --min_kmer_cov 2 --verbose --bflyHeapSpaceMax 100G
+Trinity --single $1 --output ${1}.out --CPU 1 --max_memory 100G --run_as_paired --seqType fa --trinity_complete --full_cleanup --min_kmer_cov 2 --verbose --bflyHeapSpaceMax 100G
 
 #Trinity --full_cleanup --seqType fq --CPU 64 --max_memory 4030G --min_kmer_cov 2 --normalize_by_read_set --verbose --FORCE \
 #--left $forward \
