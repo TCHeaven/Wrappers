@@ -2,10 +2,10 @@
 #SBATCH --job-name=omniHiC
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 30G
+#SBATCH --mem 40G
 #SBATCH -c 32
-#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long,RG-Saskia-Hogenhout
-#SBATCH --time=02-00:00:00
+#SBATCH -p jic-long,nbi-long
+#SBATCH --time=07-00:00:00
 
 ##https://omni-c.readthedocs.io/en/latest/fastq_to_bam.html
 
@@ -13,12 +13,10 @@ CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
 
 Assembly=$1
-Enzyme=$2
-OutDir=$3
-OutFile=$4
-Read1=$5
-Read2=$6
-
+Read1=$2
+Read2=$3
+OutDir=$4
+OutFile=$5
 
 echo CurPth:
 echo $CurPath
@@ -26,8 +24,6 @@ echo WorkDir:
 echo $WorkDir
 echo Assembly:
 echo $Assembly
-echo Enzyme:
-echo $Enzyme
 echo Reads:
 echo $Read1
 echo Read2
@@ -69,17 +65,18 @@ samtools index mapped.PT.bam
 singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 ~/git_repos/Scripts/NBI/get_qc.py -p PCR_duplication_stats.txt 2>&1 >> PCR_duplication_stats_report.txt
 preseq lc_extrap -bam -pe -extrap 2.1e9 -step 1e8 -seg_len 1000000000 -output out.preseq mapped.PT.bam
 
+source package 3e7beb4d-f08b-4d6b-9b6a-f99cc91a38f9
+java17 -Xmx48000m -Djava.awt.headless=true -jar ~/git_repos/Scripts/NBI/juicer_tools_1.22.01.jar pre --threads 32 mapped.pairs hic.hic genome.genome
+
 ls -lh
 
 cp genome.genome ${OutDir}/${OutFile}.genome
-cp mapped.pairs ${OutDir}/${OutFile}_mapped.pairs
-cp mapped.PT.bam ${OutDir}/${OutFile}_mapped.PT.bam
-cp mapped.PT.bam.bai ${OutDir}/${OutFile}_mapped.PT.bam.bai
+cp hic.hic ${OutDir}/${OutFile}.hic
+
 cp PCR_duplication_stats.txt ${OutDir}/${OutFile}_PCR_duplication_stats.txt
 cp PCR_duplication_stats_report.txt ${OutDir}/${OutFile}_PCR_duplication_stats_report.txt
 cp out.preseq ${OutDir}/${OutFile}_out.preseq
 
-#cp unsorted.bam ../${OutFile}_unsorted.bam
-
 echo DONE
 rm -r $WorkDir
+

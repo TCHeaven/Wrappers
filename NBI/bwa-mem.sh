@@ -4,8 +4,8 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 50G
 #SBATCH --nodes=1
-#SBATCH -c 62
-#SBATCH -p jic-medium
+#SBATCH -c 32
+#SBATCH -p jic-medium,nbi-medium,jic-long,nbi-long
 #SBATCH --time=02-00:00:00
 
 CurPath=$PWD

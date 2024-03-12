@@ -2,7 +2,7 @@
 #SBATCH --job-name=RAxML
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem-per-cpu=5G
+#SBATCH --mem-per-cpu=2G
 #SBATCH --cpus-per-task=1
 #SBATCH -p jic-long
 #SBATCH --time=30-00:00

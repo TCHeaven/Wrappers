@@ -5,7 +5,7 @@
 #SBATCH --mem 50G
 #SBATCH --nodes=1
 #SBATCH -c 4
-#SBATCH -p jic-medium,nbi-medium
+#SBATCH -p jic-medium,nbi-medium,RG-Saskia-Hogenhout
 #SBATCH --time=2-00:00:00
 
 CurPath=$PWD
@@ -37,7 +37,11 @@ ln -s $Reference $WorkDir/reference.fasta
 
 cd $WorkDir
 source package /tgac/software/testing/bin/minimap2-2.24
+if [ -n "$5" ]; then
 minimap2 -ax map-hifi reference.fasta read1.fq.gz read2.fq.gz > aln.sam
+else
+minimap2 -ax map-hifi reference.fasta read1.fq.gz > aln.sam
+fi
 
 source package 638df626-d658-40aa-80e5-14a275b7464b
 samtools view -bS aln.sam > ${OutFile}.bam

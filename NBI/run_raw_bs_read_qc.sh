@@ -116,7 +116,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz fastq7.fq.gz fastq9.fq.gz | gzip > fastq13579.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz fastq8.fq.gz fastq10.fq.gz | gzip > fastq246810.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq13579.fq.gz -b fastq246810.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -158,7 +158,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz fastq7.fq.gz | gzip > fastq1357.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz fastq8.fq.gz | gzip > fastq2468.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1357.fq.gz -b fastq2468.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -194,7 +194,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz | gzip > fastq135.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz | gzip > fastq246.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq135.fq.gz -b fastq246.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -224,7 +224,7 @@ if [ "$gff" != "NA" ] && [ -h "gff.gff" ] && [ -f "gff.gff" ]; then
 		zcat fastq1.fq.gz fastq3.fq.gz | gzip > fastq13.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz | gzip > fastq24.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq13.fq.gz -b fastq24.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -311,7 +311,7 @@ else
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz fastq7.fq.gz fastq9.fq.gz | gzip > fastq13579.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz fastq8.fq.gz fastq10.fq.gz | gzip > fastq246810.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq13579.fq.gz -b fastq246810.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -353,7 +353,7 @@ else
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz fastq7.fq.gz | gzip > fastq1357.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz fastq8.fq.gz | gzip > fastq2468.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1357.fq.gz -b fastq2468.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -389,7 +389,7 @@ else
 		zcat fastq1.fq.gz fastq3.fq.gz fastq5.fq.gz | gzip > fastq135.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz fastq6.fq.gz | gzip > fastq246.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq135.fq.gz -b fastq246.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2 
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 
@@ -419,7 +419,7 @@ else
 		zcat fastq1.fq.gz fastq3.fq.gz | gzip > fastq13.fq.gz
 		#zcat fastq2.fq.gz | zcat fastq4.fq.gz | gzip > fastq24.fq.gz
 		zcat fastq2.fq.gz fastq4.fq.gz | gzip > fastq24.fq.gz
-		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq1.fq.gz -b fastq2.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
+		singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/bsmap2.9.sif bsmap -a fastq13.fq.gz -b fastq24.fq.gz -d genome.fa -o sam.sam -p 16 -S 1234 -V 2
 		samtools view -@16 -bS sam.sam > sam.bam
 		samtools sort -@16 sam.bam -o sorted_sam.bam
 

@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=blastn
+#SBATCH --job-name=blastx
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 350G
 #SBATCH --nodes=1
 #SBATCH -c 32
-#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long,RG-Saskia-Hogenhout
-#SBATCH --time=02-00:00:00
+#SBATCH -p jic-short
+#SBATCH --time=00-02:00:00
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
@@ -27,8 +27,6 @@ echo Input:
 echo $InFile
 echo Database:
 echo $Database
-echo Max target sequences:
-echo $5
 echo _
 echo _
 
@@ -40,19 +38,18 @@ cd $WorkDir
 source package /nbi/software/testing/bin/blast+-2.12.0 #v2.12.0
 
 #singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/blast2.9.0.sif blastn \
-blastn \
--task megablast \
+blastx \
+-task blastx \
 -query InFile.fa \
 -db $Database \
 -outfmt '6 qseqid staxids bitscore std' \
--max_target_seqs $5 \
+-max_target_seqs 10 \
 -max_hsps 1 \
 -num_threads 32 \
 -evalue 1e-25 \
--out ${OutFile}.vs.nt.mts1.hsp1.1e25.megablast.out
+-out ${OutFile}.vs.faa.mts1.hsp1.1e25.megablast.out
 
 #mkdir ${OutDir}
-ls -lh
 cp ${OutFile}* ${OutDir}/.
 echo DONE
 rm -r $WorkDir
