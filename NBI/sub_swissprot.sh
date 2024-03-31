@@ -38,7 +38,7 @@ cd $WorkDir
 
 ln -s $Proteome proteins.fa
 mkdir -p $WorkDir/db
-cp -r $CurDir/$SwissDB_Dir/* db/.
+cp -r $SwissDB_Dir/* db/.
 
 source package d6092385-3a81-49d9-b044-8ffb85d0c446
 
@@ -54,7 +54,6 @@ blastp \
 
 singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 ~/git_repos/Scripts/NBI/swissprot_parser.py --blast_tbl swissprot_hits.tbl --blast_db_fasta db/"$SwissDB_Name".fasta > swissprot_tophit_parsed.tbl
 
-mkdir -p $CurDir/$OutDir
-cp -r $WorkDir/swissprot_vSept2019_10_hits.tbl $CurDir/$OutDir/.
-cp -r $WorkDir/swissprot_vSept2019_tophit_parsed.tbl $CurDir/$OutDir/.
+cp -r $WorkDir/swissprot_vSept2019_10_hits.tbl $OutDir/.
+cp -r $WorkDir/swissprot_vSept2019_tophit_parsed.tbl $OutDir/.
 rm -r $WorkDir

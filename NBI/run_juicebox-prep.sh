@@ -70,13 +70,14 @@ java17 -Xmx48000m -Djava.awt.headless=true -jar ~/git_repos/Scripts/NBI/juicer_t
 
 ls -lh
 
-cp genome.genome ${OutDir}/${OutFile}.genome
-cp hic.hic ${OutDir}/${OutFile}.hic
+mv genome.genome ${OutDir}/${OutFile}.genome
+mv hic.hic ${OutDir}/${OutFile}.hic
+mv mapped.pairs ${OutDir}/${OutFile}.pairs
 
-cp PCR_duplication_stats.txt ${OutDir}/${OutFile}_PCR_duplication_stats.txt
-cp PCR_duplication_stats_report.txt ${OutDir}/${OutFile}_PCR_duplication_stats_report.txt
-cp out.preseq ${OutDir}/${OutFile}_out.preseq
+mv PCR_duplication_stats.txt ${OutDir}/${OutFile}_PCR_duplication_stats.txt
+mv PCR_duplication_stats_report.txt ${OutDir}/${OutFile}_PCR_duplication_stats_report.txt
+mv out.preseq ${OutDir}/${OutFile}_out.preseq
 
 echo DONE
-rm -r $WorkDir
+#rm -r $WorkDir
 

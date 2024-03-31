@@ -13,6 +13,7 @@ WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
 BamFile=$1
 Reference_genome=$2
 OutDir=$3
+Gff=$4
 Prefix=$(basename $BamFile | sed 's@.bam@@g')
 
 echo CurPth:
@@ -22,11 +23,13 @@ echo $WorkDir
 echo OutDir:
 echo $OutDir
 echo OutFile:
-echo $OutFile
+echo $Prefix
 echo BamFile:
 echo $BamFile
 echo Reference_genome:
 echo $Reference_genome
+echo Gff:
+echo $Gff
 echo _
 echo _
 
@@ -46,7 +49,12 @@ java17 -Xmx20G
 
 samtools sort -@16 bam.bam -o sorted_bam.bam
 mkdir ${OutDir}/qualimap
+if [ "$Gff" != "0" ] && [ "$Gff" != "NA" ]; then
+qualimap bamqc -nt 16 -bam sorted_bam.bam -c -gff $Gff --java-mem-size=30G -outformat PDF -outdir ${OutDir}/qualimap -outfile ${Prefix}_qualimap.pdf
+else
 qualimap bamqc -nt 16 -bam sorted_bam.bam -c --java-mem-size=30G -outformat PDF -outdir ${OutDir}/qualimap -outfile ${Prefix}_qualimap.pdf
+fi
+
 mv ${OutDir}/qualimap/genome_results.txt ${OutDir}/qualimap/${Prefix}_genome_results.txt
  
 echo DONE

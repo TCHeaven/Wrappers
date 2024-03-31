@@ -48,7 +48,8 @@ source package 7b014e53-984f-4a0d-8b31-13d189fef2fd
 #raxml-ng --support --tree T5.raxml.bestTree --bs-trees T8.raxml.bootstraps --prefix T14 --threads 2 --bs-metric tbe
 #source package /nbi/software/production/bin/raxml-7.2.6
 #raxmlHPC -m GTRGAMMA -s msa.fa -n $OutFile -b 1234 -N 200 
-raxml-ng --all --msa msa.fa --model GTR+G --prefix $OutFile --seed 1234 --threads 1 --bs-cutoff 0.03 --bs-metric fbp,tbe
+#--clock=rt  needed to make the trees ultrametric
+raxml-ng --all --msa msa.fa --model GTR+G --prefix $OutFile --seed 1234 --threads 1 --bs-cutoff 0.03 --bs-metric fbp,tbe --bs-trees 1000 --clock-model GTR
 
 raxml-ng --evaluate --msa msa.fa --threads 1 --model JC --tree ${OutFile}.raxml.bestTree --prefix JC
 raxml-ng --evaluate --msa msa.fa --threads 1 --model JC+G --tree ${OutFile}.raxml.bestTree --prefix JC+G
@@ -62,5 +63,7 @@ grep "AIC score" E*.raxml.log > ${OutFile}.log
 cp ${OutFile}* $OutDir/.
 rm -r $WorkDir
 echo DONE
+
+
 
 

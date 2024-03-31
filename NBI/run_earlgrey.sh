@@ -2,11 +2,11 @@
 #SBATCH --job-name=EarlGreyTE
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 100G
+#SBATCH --mem 256G
 #SBATCH --nodes=1
-#SBATCH -c 32
-#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long,RG-Saskia-Hogenhout
-#SBATCH --time=02-00:00:00
+#SBATCH -c 64
+#SBATCH -p RG-Saskia-Hogenhout,jic-long,nbi-long
+#SBATCH --time=14-00:00:00
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
@@ -15,7 +15,7 @@ Genome=$1
 OutFile=$2
 OutDir=$3
 repeatmaskersearchterm=$4
-cpu=32
+cpu=64
 
 echo CurPth:
 echo $CurPath
@@ -41,10 +41,14 @@ source /jic/software/staging/RCSUPPORT-3017/stagingloader
 #conda activate earlGrey
 #Rscript /home/user/EarlGrey/scripts/install_r_packages.R
 
+mkdir ${WorkDir}
+cp $Genome ${WorkDir}/genome.fa
+cd ${WorkDir}
+
 if [[ -n $repeatmaskersearchterm && $repeatmaskersearchterm != 'NA' ]]; then
-echo "y" | earlGrey -g $Genome -s $OutFile -o $OutDir -t $cpu -d yes -r $repeatmaskersearchterm
+echo "y" | earlGrey -g ${WorkDir}/genome.fa -s $OutFile -o $OutDir -t $cpu -d yes -r $repeatmaskersearchterm
 else
-echo "y" | earlGrey -g $Genome -s $OutFile -o $OutDir -t $cpu -d yes 
+echo "y" | earlGrey -g ${WorkDir}/genome.fa -s $OutFile -o $OutDir -t $cpu -d yes 
 fi
 
 echo DONE

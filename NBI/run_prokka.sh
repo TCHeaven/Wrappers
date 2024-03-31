@@ -2,11 +2,11 @@
 #SBATCH --job-name=prokka
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 50G
+#SBATCH --mem 32G
 #SBATCH --nodes=1
 #SBATCH -c 8
-#SBATCH -p jic-medium,nbi-medium,jic-long,nbi-long,RG-Saskia-Hogenhout
-#SBATCH --time=02-00:00:00
+#SBATCH -p jic-short,nbi-short
+#SBATCH --time=00-02:00:00
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}

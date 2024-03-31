@@ -33,23 +33,31 @@ echo $InFile
 echo Read type:
 echo $Read_type
 echo Reads:
-echo 
+echo $Read1
+echo $Read2
+echo $Read3
+echo $Read4
 
 echo _
 echo _
 
 mkdir -p $WorkDir
 ln -s $InFile ${WorkDir}/assembly.fasta
-cat $5 $6 $7 $8 > ${WorkDir}/reads.fasta
+cat $Read1 $Read2 $Read3 $Read4 > ${WorkDir}/reads.fasta
 
 cd $WorkDir
 
 source package 8d5e6fe6-0b34-4ff4-a645-0fe3209c0f75
 
+circlator minimus2 $InFile ${OutFile}_minimus
+
 if [ "$Read_type" = "illumina" ]; then
-    circlator all --threads $cpu --assembler spades assembly.fasta reads.fasta $OutDir
+    echo "running with short reads"
+    circlator all --threads $cpu --assembler spades assembly.fasta reads.fasta ${WorkDir}/1
 elif [ "$Read_type" = "pacbio-raw" ] || [ "$Read_type" = "pacbio-corrected" ] || [ "$Read_type" = "nanopore-raw" ] || [ "$Read_type" = "nanopore-corrected" ]; then
-    circlator all --threads $cpu --assembler canu --data_type $Read_type assembly.fasta reads.fasta $OutDir
+    echo "running with long reads"
+    #singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/circlator1.5.5.sif circlator all --threads $cpu --assembler canu --data_type $Read_type assembly.fasta reads.fasta ${WorkDir}/1
+    circlator all --threads $cpu --assembler canu --data_type $Read_type assembly.fasta reads.fasta ${WorkDir}/1
 else
     echo "unknown read type"
 fi
