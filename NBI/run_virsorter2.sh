@@ -28,8 +28,9 @@ echo __
 echo __
 
 
-source package 7a6ee408-8bf5-4cb5-9853-16d5ad415e8f
+#source package 7a6ee408-8bf5-4cb5-9853-16d5ad415e8f
 
-virsorter run --keep-original-seq -i $Genome -w $OutDir --include-groups dsDNAphage,ssDNA,NCLDV,laviviridae --min-length 5000 --min-score 0.5 -j $cpu all
+#virsorter run --keep-original-seq -i $Genome -w $OutDir --include-groups dsDNAphage,ssDNA,NCLDV,laviviridae --min-length 5000 --min-score 0.5 -j $cpu all
+singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/virsorter2.2.4.sif virsorter run --keep-original-seq -i $Genome -w $OutDir --include-groups dsDNAphage,ssDNA,NCLDV,laviviridae --min-length 5000 --min-score 0.5 -j $cpu all --db-dir /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/databases/virsorter/db
 
 echo DONE

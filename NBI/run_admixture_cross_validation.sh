@@ -2,8 +2,8 @@
 #SBATCH --job-name=admixture
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 100G
-#SBATCH -c 32
+#SBATCH --mem 16G
+#SBATCH -c 4
 #SBATCH -p jic-long,nbi-long
 #SBATCH --time=30-00:00:00
 
@@ -43,7 +43,7 @@ cd $WorkDir
 
 source package /tgac/software/testing/bin/admixture-1.3.0
 
-admixture -j32 --cv=10 --seed=1234 $bedfile $K | tee ${OutDir}/log${K}.out
+admixture -j4 --cv=10 --seed=1234 -C 100 $bedfile $K | tee ${OutDir}/log${K}.out
 
 echo DONE
-rm -r $WorkDir
+#rm -r $WorkDir

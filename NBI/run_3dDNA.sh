@@ -74,6 +74,6 @@ cp juicer/aligned/genome_wrapped.final.assembly $OutDir/$OutFile.final.assembly
 cd $OutDir
 abyss-fac $OutFile.FINAL.fasta > ${OutFile}_abyss_report.txt
 
-rm $WorkDir
+#rm $WorkDir
 
 echo DONE

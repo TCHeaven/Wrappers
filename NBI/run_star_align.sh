@@ -7,6 +7,7 @@
 #SBATCH -p jic-largemem,RG-Saskia-Hogenhout
 #SBATCH --time=02-00:00:00
 
+source package 266730e5-6b24-4438-aecb-ab95f1940339
 
 # Align RNAseq data to transcripts using STAR
 
@@ -15,15 +16,20 @@
 # Collect inputs
 # ---------------
 GffProvided="N"
-InGenome=$(basename $1)
-InReadF=$(basename $2)
-InReadR=$(basename $3)
+InGenome=$1
+InReadF=$2
+InReadR=$3
 OutDir=$4
 # determine if optional file for genemodels has been provided
 if [ $5 ]; then
   GffProvided="Y"
-  InGff=$(basename $5)
+  InGff=$5
 fi
+echo "InGenome: $InGenome"
+echo "Fread: $InReadF"
+echo "Rread: $InReadR"
+echo "OutDir: $OutDir"
+
 # Set working directory
 CurDir=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
@@ -32,11 +38,11 @@ GenomeDir=$WorkDir/index
 mkdir -p $GenomeDir
 # Copy over input files
 cd $WorkDir
-cp $CurDir/$1 $InGenome
-cp $CurDir/$2 $InReadF
-cp $CurDir/$3 $InReadR
+cp $InGenome ./genome.fa
+cp $InReadF ./Fread.fq.gz
+cp $InReadR ./Rread.fq.gz
 if [ $GffProvided == "Y" ]; then
-cp $CurDir/$5 $InGff
+cp $5 ./gff.gff
 fi
 # ---------------
 # Step 2
@@ -48,15 +54,15 @@ if [ $GffProvided == "N" ]; then
 STAR \
 --runMode genomeGenerate \
 --genomeDir $GenomeDir \
---genomeFastaFiles $InGenome \
+--genomeFastaFiles genome.fa \
 --runThreadN 10
 elif [ $GffProvided == "Y" ]; then
 STAR \
 --runMode genomeGenerate \
 --genomeDir $GenomeDir \
---genomeFastaFiles $InGenome \
+--genomeFastaFiles genome.fa \
 --sjdbGTFtagExonParentTranscript $ParentFeature \
---sjdbGTFfile $InGff \
+--sjdbGTFfile gff.gff \
 --runThreadN 10 \
 --sjdbOverhang 149
 fi
@@ -69,7 +75,7 @@ STAR \
 --genomeDir $GenomeDir \
 --outFileNamePrefix star_aligment \
 --readFilesCommand zcat \
---readFilesIn $InReadF $InReadR \
+--readFilesIn Fread.fq.gz Rread.fq.gz \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMstrandField intronMotif \
 --runThreadN 10 \

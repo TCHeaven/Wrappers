@@ -41,7 +41,7 @@ mkdir $WorkDir
 cd $WorkDir
 
 source package 85f2de80-4bd0-48dc-9303-bba1a19206e4
-braker.pl --cores $cpu --gff3 --species $Species --genome=$Masked_Genome --prot_seq=$Protein_database --softmasking --AUGUSTUS_CONFIG_PATH=/hpc-home/did23faz/config
+braker.pl --cores $cpu --gff3 --species $Species --genome=$Masked_Genome --bam=$RNA_alignment --softmasking --AUGUSTUS_CONFIG_PATH=/hpc-home/did23faz/config
 
 echo DONE
 

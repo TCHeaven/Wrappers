@@ -1,16 +1,92 @@
 #!/bin/bash
-#SBATCH --job-name=blast
+#SBATCH --job-name=iqtree2
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 128G
-#SBATCH -c 32
+#SBATCH --mem 64G
+#SBATCH -c 8
 #SBATCH -p jic-long,nbi-long
-#SBATCH --time=14-00:00:00
+#SBATCH --time=28-00:00:00
 
 cat ~/git_repos/Wrappers/NBI/temp3.sh
 echo __
 echo __
 echo __
+
+mkdir -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/apicales/iqtree2
+cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/apicales/iqtree2
+Alignment=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales/genmap/variants_callable_filtered.recode.thin1000.min4.fasta
+cpu=8
+singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $Alignment -m MF -T AUTO --threads-max $cpu
+
+#mkdir -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/apicales/iqtree2
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/apicales/iqtree2
+#Alignment=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales/genmap/variants_callable_filtered.recode.min4.fasta
+#cpu=8
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $Alignment -m MF -T AUTO --threads-max $cpu
+
+
+
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -t /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/hemiptera_phylogeny.bootstrapped.consensus2.astral.tre --gcf /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/tree-files.txt --prefix concord3 -T 8
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -te /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/hemiptera_phylogeny.bootstrapped.consensus2.astral.tre -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/AlignDir3/ --scfl 100 --prefix concord4 -T 8
+
+
+#source package 638df626-d658-40aa-80e5-14a275b7464b
+#ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/dna_qc/Dyspera/apicales/*/trim_galore/bwa-mem/gatk/*realigned.bam > bamlist3.txt
+#mkdir -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales/
+#bcftools mpileup --threads 64 -b /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/bamlist3.txt --annotate AD,DP --fasta-ref /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/sanger/MitoHifi/filtered/inspector/T_apicales_880m_29_3_3.0_0.75_break_TellSeqPurged_curated_nomito_filtered_corrected.fa -O z -o /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales/variants_1.vcf.gz
+
+#bcftools call --threads 64 --ploidy 2 -Oz -v -m -o /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales/variants.vcf.gz  /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales/variants_1.vcf.gz
+
+#for file in $(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/dna_qc/Dyspera/*/*/trim_galore/bwa-mem/*_trimmed_1_sorted.bam); do
+#    OutDir=$(dirname $file)
+#    OutFile=$(basename $file | sed s'@_sorted.bam@_sorted_MarkDups.bam@g')
+#    metrics=$(basename $file | sed s'@_trimmed_1_sorted.bam@@g')_marked_dup_metrics.txt
+#    java17 -jar /tgac/software/testing/bin/core/../..//picardtools/2.1.1/x86_64/bin/picard.jar SortSam I=${file} O=${OutDir}/temp.bam SORT_ORDER=coordinate
+#    java17 -jar /tgac/software/testing/bin/core/../..//picardtools/2.1.1/x86_64/bin/picard.jar MarkDuplicates REMOVE_DUPLICATES=true I=${OutDir}/temp.bam O=${OutDir}/${OutFile} M=${OutDir}/${metrics}
+#    cd ${OutDir}
+#    rm temp.bam
+#    samtools index ${OutFile}
+#    cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Aphididae
+#done
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/iqtree2
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -te /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/iqtree2/AlignDir.contree -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/AlignDir/ --scfl 100 --prefix concord2 -T 8
+
+#mkdir /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/iqtree2
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/iqtree2
+#AlignDir=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/AlignDir
+#cpu=32
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $AlignDir -m SYM+I+R9 -B 1000 -T AUTO --threads-max $cpu
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/iqtree2
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -te /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/AlignDir3.contree -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/AlignDir3/ --scfl 100 --prefix concord2 -T 8
+#mkdir /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/AlignDir
+#for gene in $(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/*/*_edit.fasta); do
+#ln -s $gene /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/AlignDir/.
+#done
+
+#Randomly select 100 BUSCO genes and use these for model selection, also select the GTR model as almost certainly best base model
+#mkdir /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/AlignDir-100
+#ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/AlignDir/ | shuf -n 100 | xargs -I {} ln -s /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/AlignDir/{} /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/AlignDir-100/{}
+#mkdir /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/iqtree2
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/iqtree2
+#AlignDir=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/nano_diagnostics/analysis/phylogeny/busco_nt/AlignDir
+#cpu=32
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $AlignDir -m MFA -T AUTO --threads-max $cpu
+#
+#Best-fit model: 
+
+#mkdir /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/iqtree2
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/iqtree2
+#AlignDir=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/AlignDir3/
+#cpu=32
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $AlignDir -m GTR+F+I+R10 -B 1000 -T AUTO --threads-max $cpu
+
+#mkdir /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/iqtree2-test
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/iqtree2-test
+#AlignDir=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/AlignDir-100/
+#cpu=40
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $AlignDir -m MF -T AUTO -mset GTR --threads-max $cpu
 
 #cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/iqtree2
 #AlignDir=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/phylogeny/busco_nt/AlignDir3/
@@ -35,18 +111,18 @@ echo __
 #blastp -db /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/mcscanx/ncbiDB/B_cockerelli -query /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/helixer/B_cockerelli/B_cockerelli.faa -num_threads 32 -evalue 1e-10 -num_alignments 6 -outfmt 6 -out /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/mcscanx/intermediateData/B_cockerelli_v_B_cockerelli.blast 
 #blastp -db /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/mcscanx/ncbiDB/D_citri -query /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/helixer/D_citri/D_citri.faa -num_threads 32 -evalue 1e-10 -num_alignments 6 -outfmt 6 -out /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/helixer/D_citri/D_citri.faa -num_threads 32 -evalue 1e-10 -num_alignments 5 -outfmt 6 -out /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/mcscanx/intermediateData/D_citri_v_D_citri.blast
 
-source package 37f0ffda-9f66-4391-87e2-38ccd398861d
+#source package 37f0ffda-9f66-4391-87e2-38ccd398861d
 
-for ID in CLsoB_ZC1 CLeu_ASUK1 CLeu_ASNZ1 CLct_Oxford CLcr_BT-1 CLcr_BT-0 CLbr_Asol15 CLas_psy62 CLas_JXGC CLas_Ishi-1 CLas_gxpsy CLam_SaoPaulo CLam_PW_SP CLaf_PTSAPSY CLaf_Ang37 CLsoC_JIC; do
-  Assembly=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/genomes/${ID}/*/data/*/prokka/*.faa)
-  DB=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/analysis/synteny/mcscanx/ncbiDB/${ID}
-  makeblastdb -in ${Assembly} -out ${DB} -dbtype prot
-  for ID2 in CLsoB_ZC1 CLeu_ASUK1 CLeu_ASNZ1 CLct_Oxford CLcr_BT-1 CLcr_BT-0 CLbr_Asol15 CLas_psy62 CLas_JXGC CLas_Ishi-1 CLas_gxpsy CLam_SaoPaulo CLam_PW_SP CLaf_PTSAPSY CLaf_Ang37 CLsoC_JIC; do
-    Query=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/genomes/${ID2}/*/data/*/prokka/*.faa)
-    Out=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/analysis/synteny/mcscanx/interspecies/intermediateData/${ID2}_v_${ID}.blast
-    blastp -db ${DB} -query ${Query} -num_threads 32 -evalue 1e-10 -num_alignments 200 -outfmt 6 -out ${Out}
-  done
-done
+#for ID in CLsoB_ZC1 CLeu_ASUK1 CLeu_ASNZ1 CLct_Oxford CLcr_BT-1 CLcr_BT-0 CLbr_Asol15 CLas_psy62 CLas_JXGC CLas_Ishi-1 CLas_gxpsy CLam_SaoPaulo CLam_PW_SP CLaf_PTSAPSY CLaf_Ang37 CLsoC_JIC; do
+#  Assembly=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/genomes/${ID}/*/data/*/prokka/*.faa)
+#  DB=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/analysis/synteny/mcscanx/ncbiDB/${ID}
+#  makeblastdb -in ${Assembly} -out ${DB} -dbtype prot
+#  for ID2 in CLsoB_ZC1 CLeu_ASUK1 CLeu_ASNZ1 CLct_Oxford CLcr_BT-1 CLcr_BT-0 CLbr_Asol15 CLas_psy62 CLas_JXGC CLas_Ishi-1 CLas_gxpsy CLam_SaoPaulo CLam_PW_SP CLaf_PTSAPSY CLaf_Ang37 CLsoC_JIC; do
+#    Query=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/genomes/${ID2}/*/data/*/prokka/*.faa)
+#    Out=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/analysis/synteny/mcscanx/interspecies/intermediateData/${ID2}_v_${ID}.blast
+#    blastp -db ${DB} -query ${Query} -num_threads 32 -evalue 1e-10 -num_alignments 20 -outfmt 6 -out ${Out}
+#  done
+#done
 
 #blastp -db /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/mcscanx/ncbiDB/T_urticae -query /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/helixer/B_cockerelli/B_cockerelli.faa -num_threads 32 -evalue 1e-10 -num_alignments 5 -outfmt 6 -out /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/mcscanx/intermediateData/B_cockerelli_v_T_urticae.blast
 #blastp -db /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/mcscanx/ncbiDB/T_urticae -query /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/helixer/P_venusta/P_venusta.faa -num_threads 32 -evalue 1e-10 -num_alignments 5 -outfmt 6 -out /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/analysis/synteny/mcscanx/intermediateData/P_venusta_v_T_urticae.blast
