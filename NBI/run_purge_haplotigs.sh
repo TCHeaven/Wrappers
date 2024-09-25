@@ -3,8 +3,8 @@
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 50G
-#SBATCH -c 4
-#SBATCH -p jic-medium,jic-long
+#SBATCH -c 64
+#SBATCH -p jic-medium,jic-long,RG-Saskia-Hogenhout
 #SBATCH --time=2-00:00:00
 
 CurPath=$PWD
@@ -23,6 +23,8 @@ hap_percent_cuttoff=${10}
 rep_percent_cuttoff=${11}
 OutDir=${12}
 OutFile=${13}
+
+cpu=64
 
 echo CurPth:
 echo $CurPath
@@ -70,15 +72,15 @@ source package 0567474a-7a7f-40c6-9f91-6272b934f8a4
 source package 222eac79-310f-4d4b-8e1c-0cece4150333
 source package /tgac/software/production/bin/abyss-1.3.5
 
-purge_haplotigs hist -b bam.bam -g genome.fa -t 4
+purge_haplotigs hist -b bam.bam -g genome.fa -t $cpu
 
 purge_haplotigs cov -i bam.bam.gencov -l $low -m $mid -h $high -o ${OutFile}_coverage_stats.csv -j $junk_cuttoff -s $diploid_cuttoff
 
-purge_haplotigs purge -g genome.fa -c ${OutFile}_coverage_stats.csv -t 4 -o ${OutFile}_curated -d -b bam.bam -a $hap_percent_cuttoff -m $rep_percent_cuttoff 
+purge_haplotigs purge -g genome.fa -c ${OutFile}_coverage_stats.csv -t $cpu -o ${OutFile}_curated -d -b bam.bam -a $hap_percent_cuttoff -m $rep_percent_cuttoff 
 
-purge_haplotigs  clip  -p ${OutFile}_curated.fasta  -h ${OutFile}_curated.haplotigs.fasta -o ${OutFile}_clip -t 4
+purge_haplotigs  clip  -p ${OutFile}_curated.fasta  -h ${OutFile}_curated.haplotigs.fasta -o ${OutFile}_clip -t $cpu
 
-purge_haplotigs  place  -p ${OutFile}_curated.fasta  -h ${OutFile}_curated.haplotigs.fasta -o ${OutFile}_out.tsv -t 4 -falconNaming
+purge_haplotigs  place  -p ${OutFile}_curated.fasta  -h ${OutFile}_curated.haplotigs.fasta -o ${OutFile}_out.tsv -t $cpu -falconNaming
 
 abyss-fac ${OutFile}_curated.fasta > ${OutFile}_curated.abyss_report.txt
 

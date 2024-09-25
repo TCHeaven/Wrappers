@@ -4,7 +4,7 @@
 #SBATCH -e slurm.%j.err
 #SBATCH -c 32
 #SBATCH --mem 20G
-#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long,RG-Saskia-Hogenhout
+#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long
 #SBATCH --time=02-00:00:00
 
 CurPath=$PWD

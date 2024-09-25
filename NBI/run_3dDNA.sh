@@ -3,7 +3,7 @@
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 80G
-#SBATCH -c 16
+#SBATCH -c 64
 #SBATCH -p jic-long
 #SBATCH --time=30-00:00:00
 
@@ -15,6 +15,8 @@ OutDir=$2
 OutFile=$3
 Read1=$4
 Read2=$5
+
+cpu=64
 
 echo CurPth:
 echo $CurPath
@@ -53,7 +55,7 @@ samtools faidx genome_wrapped.fa
 mkdir -p juicer/fastq
 ln -s $Read1 $WorkDir/juicer/fastq/read_R1.fastq.gz
 ln -s $Read2 $WorkDir/juicer/fastq/read_R2.fastq.gz
-singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/juicer.sif juicer.sh -t 16 -d $WorkDir/juicer -g saundersiae -z genome_wrapped.fa -y ${OutFile}_Phase.txt -p genome_wrapped.fa.fai -D /opt/juicer-1.6.2/CPU
+singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/juicer.sif juicer.sh -t $cpu -d $WorkDir/juicer -g saundersiae -z genome_wrapped.fa -y ${OutFile}_Phase.txt -p genome_wrapped.fa.fai -D /opt/juicer-1.6.2/CPU
 cd juicer/aligned
 run-asm-pipeline.sh --build-gapped-map -m diploid --rounds 1 --editor-repeat-coverage 5 --editor-saturation-centile 10 ../../genome_wrapped.fa merged_nodups.txt
 

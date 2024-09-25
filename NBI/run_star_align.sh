@@ -4,7 +4,7 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=30G
-#SBATCH -p jic-largemem,RG-Saskia-Hogenhout
+#SBATCH -p jic-largemem
 #SBATCH --time=02-00:00:00
 
 source package 266730e5-6b24-4438-aecb-ab95f1940339

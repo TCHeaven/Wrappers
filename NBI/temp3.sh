@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=iqtree2
+#SBATCH --job-name=iqtree
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 64G
-#SBATCH -c 8
+#SBATCH --mem 32G
+#SBATCH -c 4
 #SBATCH -p jic-long,nbi-long
 #SBATCH --time=28-00:00:00
 
@@ -12,11 +12,46 @@ echo __
 echo __
 echo __
 
-mkdir -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/apicales/iqtree2
-cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/apicales/iqtree2
-Alignment=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales/genmap/variants_callable_filtered.recode.thin1000.min4.fasta
-cpu=8
-singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $Alignment -m MF -T AUTO --threads-max $cpu
+cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Symbionts/analysis/phylogeny/orthofinder/iqtree2
+Align=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Symbionts/analysis/orthology/orthofinder/All_carsonella_1/formatted/orthofinder52000/Results_All_carsonella_1/WorkingDirectory/Alignments_ids/SpeciesTreeAlignment.fa
+cpu=4
+singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $Align -m mtInv+F+I+R4 -B 1000 -T AUTO --threads-max $cpu -redo 
+#
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Symbionts/analysis/phylogeny/orthofinder/iqtree2
+#Align=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Symbionts/analysis/orthology/orthofinder/All_carsonella_1/formatted/orthofinder52000/Results_All_carsonella_1/WorkingDirectory/Alignments_ids/SpeciesTreeAlignment.fa
+#cpu=32
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $Align -m MFA -T AUTO --threads-max $cpu
+
+#source package 638df626-d658-40aa-80e5-14a275b7464b
+#ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/dna_qc/Dyspera/*/*/trim_galore/carsonella_map/bwa-mem/gatk/*realigned.bam > /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/bamlist.txt
+#mkdir -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Carsonella/ruddii/
+#bcftools mpileup --threads 16 -b /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/bamlist.txt --annotate AD,DP --fasta-ref /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Symbionts/Candidatus/Carsonella/ruddii/GCA_002009355.1/GCA_002009355.1_ASM200935v1_genomic.fna -O z -o /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Carsonella/ruddii/variants_1.vcf.gz
+
+#bcftools call --threads 16 --ploidy 2 -Oz -v -m -o /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Carsonella/ruddii/variants.vcf.gz /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Carsonella/ruddii/variants_1.vcf.gz
+
+#ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/dna_qc/Dyspera/apicales/*/trim_galore/bwa-mem/gatk/*realigned.bam /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/dna_qc/Dyspera/*/*/trim_galore/api_map/bwa-mem/gatk/*realigned.bam > bamlist3.txt
+#mkdir -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales+/
+#bcftools mpileup --threads 16 -b /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/bamlist3.txt --annotate AD,DP --fasta-ref /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_apicales/hifiasm_19.5/880m/29/3/3.0/0.75/break10x/purge_dups/sanger/MitoHifi/filtered/inspector/T_apicales_880m_29_3_3.0_0.75_break_TellSeqPurged_curated_nomito_filtered_corrected.fa -O z -o /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales+/variants_1.vcf.gz
+
+#bcftools call --threads 16 --ploidy 2 -Oz -v -m -o /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales+/variants.vcf.gz  /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales+/variants_1.vcf.gz
+
+#ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/dna_qc/Dyspera/pallida/*/trim_galore/bwa-mem/gatk/*realigned.bam /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/dna_qc/Dyspera/*/*/trim_galore/ant_map/bwa-mem/gatk/*realigned.bam > bamlist4.txt
+#mkdir -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/pallida+/
+#bcftools mpileup --threads 16 -b /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/bamlist4.txt --annotate AD,DP --fasta-ref /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/assembly/genome/T_anthrisci/hifiasm_19.5/820m/48/1/10.0/0.25/break10x/purge_dups/sanger/MitoHifi/filtered/inspector/T_anthrisci_820m_48_1_10.0_0.25_break_TellSeqPurged_curated_nomito_filtered_corrected.fa -O z -o /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/pallida+/variants_1.vcf.gz
+
+#bcftools call --threads 16 --ploidy 2 -Oz -v -m -o /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/pallida+/variants.vcf.gz  /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/pallida+/variants_1.vcf.gz
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/pallida/iqtree2
+#Alignment=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/pallida/genmap/variants_callable_filtered.recode.min4.fasta
+#cpu=12
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $Alignment -m PMB+F+R3 -B 1000 -T AUTO --threads-max $cpu
+#
+
+#cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/apicales/iqtree2
+#Alignment=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/snp_calling/Dyspera/apicales/genmap/variants_callable_filtered.recode.thin1000.min4.fasta
+#cpu=12
+#singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $Alignment -m PMB+F+R5 -B 1000 -T AUTO --threads-max $cpu
+#
 
 #mkdir -p /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/apicales/iqtree2
 #cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/resequencing_psyllids/analysis/phylogeny/Dyspera/apicales/iqtree2

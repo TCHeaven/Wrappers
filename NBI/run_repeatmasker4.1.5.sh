@@ -5,7 +5,7 @@
 #SBATCH --mem 30G
 #SBATCH --nodes=1
 #SBATCH -c 32
-#SBATCH -p jic-long,nbi-long,RG-Saskia-Hogenhout
+#SBATCH -p jic-long,nbi-long
 #SBATCH --time=30-00:00:00
 
 CurPath=$PWD

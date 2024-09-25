@@ -2,7 +2,7 @@
 #SBATCH --job-name=bam_sort
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem-per-cpu=25G
+#SBATCH --mem-per-cpu=4G
 #SBATCH --cpus-per-task=1
 #SBATCH -p jic-short,nbi-short
 #SBATCH --time=00-02:00

@@ -4,7 +4,7 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 15G
 #SBATCH --cpus-per-task=12
-#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long,RG-Saskia-Hogenhout
+#SBATCH -p jic-medium,jic-long
 #SBATCH --time=02-00:00:00
 
 InFile=$1

@@ -2,10 +2,10 @@
 #SBATCH --job-name=kraken
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 500G
+#SBATCH --mem 4000G
 #SBATCH --nodes=1
-#SBATCH -c 32
-#SBATCH -p nbi-medium,jic-medium,nbi-long,jic-long,RG-Saskia-Hogenhout
+#SBATCH -c 64
+#SBATCH -p jic-largemem
 #SBATCH --time=02-00:00:00
 
 CurPath=$PWD
@@ -38,7 +38,7 @@ source package /nbi/software/testing/bin/kraken2-2.1.2
 
 singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/kraken2.1.3.sif kraken2 \
 --db $Database \
---threads 32 \
+--threads 64 \
 --output $WorkDir/${OutFile}_output.txt \
 --unclassified-out $WorkDir/${OutFile}_unclassified-out.txt \
 --classified-out $WorkDir/${OutFile}_classified-out.txt \

@@ -5,7 +5,7 @@
 #SBATCH --mem 200G
 #SBATCH --ntasks=8
 #SBATCH --cpus-per-task=4
-#SBATCH -p jic-long,nbi-long,jic-largemem,RG-Saskia-Hogenhout
+#SBATCH -p jic-long,nbi-long,jic-largemem
 #SBATCH --time=30-00:00:00
 
 CurPath=$PWD

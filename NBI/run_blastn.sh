@@ -4,8 +4,8 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 350G
 #SBATCH --nodes=1
-#SBATCH -c 32
-#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long,RG-Saskia-Hogenhout
+#SBATCH -c 64
+#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long,jic-largemem
 #SBATCH --time=02-00:00:00
 
 CurPath=$PWD
@@ -47,7 +47,7 @@ blastn \
 -outfmt '6 qseqid staxids bitscore std' \
 -max_target_seqs $5 \
 -max_hsps 1 \
--num_threads 32 \
+-num_threads 64 \
 -evalue 1e-25 \
 -out ${OutFile}.vs.nt.mts1.hsp1.1e25.megablast.out
 

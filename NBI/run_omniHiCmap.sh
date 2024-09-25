@@ -3,7 +3,7 @@
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 30G
-#SBATCH -c 32
+#SBATCH -c 64
 #SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long,RG-Saskia-Hogenhout
 #SBATCH --time=02-00:00:00
 
@@ -19,6 +19,7 @@ OutFile=$4
 Read1=$5
 Read2=$6
 
+cpu=64
 
 echo CurPth:
 echo $CurPath
@@ -54,7 +55,7 @@ samtools faidx genome.fa
 cut -f1,2 genome.fa.fai > genome.genome
 
 bwa index genome.fa
-bwa mem -5SP -T0 -t 32 genome.fa Fread.fq.gz Rread.fq.gz -o ${OutFile}.sam
+bwa mem -5SP -T0 -t $cpu genome.fa Fread.fq.gz Rread.fq.gz -o ${OutFile}.sam
 
 #this is the mark_dups step
 pairtools parse --min-mapq 40 --walks-policy 5unique --max-inter-align-gap 30 --nproc-in 32 --nproc-out 32 --chroms-path genome.genome ${OutFile}.sam > parsed.pairsam
@@ -63,7 +64,7 @@ pairtools dedup --nproc-in 32 --nproc-out 32 --mark-dups --output-stats PCR_dupl
 pairtools split --nproc-in 32 --nproc-out 32 --output-pairs mapped.pairs --output-sam unsorted.bam dedup.pairsam
 
 
-samtools sort -@32 -T ${WorkDir}/temp.bam -o mapped.PT.bam unsorted.bam
+samtools sort -@$cpu -T ${WorkDir}/temp.bam -o mapped.PT.bam unsorted.bam
 samtools index mapped.PT.bam
 
 singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/python3.sif python3 ~/git_repos/Scripts/NBI/get_qc.py -p PCR_duplication_stats.txt 2>&1 >> PCR_duplication_stats_report.txt

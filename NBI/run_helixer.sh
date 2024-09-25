@@ -2,7 +2,7 @@
 #SBATCH --job-name=helixer
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --partition=jic-gpu,jic-a100
+#SBATCH --partition=jic-gpu
 #SBATCH --gres=gpu:1
 #SBATCH -N 1 
 #SBATCH -n 1

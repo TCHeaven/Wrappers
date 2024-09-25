@@ -5,7 +5,7 @@
 #SBATCH --mem 256G
 #SBATCH --nodes=1
 #SBATCH -c 64
-#SBATCH -p RG-Saskia-Hogenhout,jic-long,nbi-long
+#SBATCH -p jic-long,nbi-long,jic-largemem
 #SBATCH --time=14-00:00:00
 
 CurPath=$PWD
@@ -34,7 +34,7 @@ echo __
 echo __
 
 #source package 14fbfadb-9fe7-419a-9f20-cd5f458c0fff
-source /jic/software/staging/RCSUPPORT-3017/stagingloader 
+source package 46936b48-5366-4305-98ac-2f51140047c3 
 #singularity shell -C -H $(pwd):/work --writable-tmpfs -u /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/earlgrey4.0.6.sif
 #eval "$(/anaconda3/bin/conda shell.bash  hook)"
 #conda env create -f /home/user/EarlGrey/earlGrey.yml

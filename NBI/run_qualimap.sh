@@ -4,7 +4,7 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 32G
 #SBATCH -c 16
-#SBATCH -p jic-medium, nbi-medium
+#SBATCH -p jic-medium
 #SBATCH --time=1-00:00:00
 
 CurPath=$PWD

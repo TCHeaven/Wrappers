@@ -5,8 +5,8 @@
 #SBATCH --mem 100G
 #SBATCH --nodes=1
 #SBATCH -c 32
-#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long,RG-Saskia-Hogenhout
-#SBATCH --time=02-00:00:00
+#SBATCH -p jic-long,nbi-long
+#SBATCH --time=14-00:00:00
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}
