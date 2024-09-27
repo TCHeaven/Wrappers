@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH -p jic-largemem
-#SBATCH -t 0-12:00
+#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long
+#SBATCH -t 2-00:00
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH -c 64
-#SBATCH --mem=500G
+#SBATCH -c 4
+#SBATCH --mem=16G
 #SBATCH -J foldseek
 
 CurPath=$PWD

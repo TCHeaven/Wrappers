@@ -4,7 +4,7 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 128G
 #SBATCH -c 32
-#SBATCH -p jic-medium,jic-long
+#SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long
 #SBATCH --time=02-00:00:00
 
 IN_DIR=$1

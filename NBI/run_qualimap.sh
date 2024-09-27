@@ -4,8 +4,8 @@
 #SBATCH -e slurm.%j.err
 #SBATCH --mem 32G
 #SBATCH -c 16
-#SBATCH -p jic-medium
-#SBATCH --time=1-00:00:00
+#SBATCH -p jic-short,nbi-short
+#SBATCH --time=0-02:00:00
 
 CurPath=$PWD
 WorkDir=$PWD${TMPDIR}_${SLURM_JOB_ID}

@@ -2,9 +2,9 @@
 #SBATCH --job-name=inspector
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 150G
+#SBATCH --mem 64G
 #SBATCH --nodes=1
-#SBATCH -c 64
+#SBATCH -c 16
 #SBATCH -p jic-medium,jic-long,nbi-medium,nbi-long
 #SBATCH --time=02-00:00:00
 
@@ -18,7 +18,7 @@ Datatype=$4
 Correct_Datatype=$5
 Read1=$6
 Read2=$7
-cpu=64
+cpu=16
 
 echo CurPth:
 echo $CurPath

@@ -2,21 +2,28 @@
 #SBATCH --job-name=iqtree
 #SBATCH -o slurm.%j.out
 #SBATCH -e slurm.%j.err
-#SBATCH --mem 32G
-#SBATCH -c 4
-#SBATCH -p jic-long,nbi-long
-#SBATCH --time=28-00:00:00
+#SBATCH --mem 64G
+#SBATCH -c 32
+#SBATCH -p jic-long,nbi-long,jic-medium,nbi-medium
+#SBATCH --time=1-00:00:00
 
 cat ~/git_repos/Wrappers/NBI/temp3.sh
 echo __
 echo __
 echo __
 
-cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Symbionts/analysis/phylogeny/orthofinder/iqtree2
-Align=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Symbionts/analysis/orthology/orthofinder/All_carsonella_1/formatted/orthofinder52000/Results_All_carsonella_1/WorkingDirectory/Alignments_ids/SpeciesTreeAlignment.fa
-cpu=4
-singularity exec /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/containers/iqtree_2.3.0.sif iqtree2 -s $Align -m mtInv+F+I+R4 -B 1000 -T AUTO --threads-max $cpu -redo 
-#
+source package d6092385-3a81-49d9-b044-8ffb85d0c446
+for ID in CLsoB_ZC1 CLeu_ASUK1 CLeu_ASNZ1 CLct_Oxford CLcr_BT-1 CLcr_BT-0 CLbr_Asol15 CLas_psy62 CLas_JXGC CLas_Ishi-1 CLas_gxpsy CLam_SaoPaulo CLam_PW_SP CLaf_PTSAPSY CLaf_Ang37 CLsoC_JIC0; do
+  Assembly=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/genomes/${ID}/*/data/*/prokka/*.faa | grep -v 'phage')
+  DB=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/analysis/synteny/mcscanx/ncbiDB/${ID}
+  makeblastdb -in ${Assembly} -out ${DB} -dbtype prot
+  for ID2 in CLsoB_ZC1 CLeu_ASUK1 CLeu_ASNZ1 CLct_Oxford CLcr_BT-1 CLcr_BT-0 CLbr_Asol15 CLas_psy62 CLas_JXGC CLas_Ishi-1 CLas_gxpsy CLam_SaoPaulo CLam_PW_SP CLaf_PTSAPSY CLaf_Ang37 CLsoC_JIC0; do
+    Query=$(ls /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/genomes/${ID2}/*/data/*/prokka/*.faa | grep -v 'phage')
+    Out=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Psyllidae/Liberibacter/analysis/synteny/mcscanx/interspecies/intermediateData/${ID2}_v_${ID}.blast
+    blastp -db ${DB} -query ${Query} -num_threads 32 -evalue 1e-10 -num_alignments 20 -outfmt 6 -out ${Out}
+  done
+done
+
 #cd /jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Symbionts/analysis/phylogeny/orthofinder/iqtree2
 #Align=/jic/scratch/groups/Saskia-Hogenhout/tom_heaven/Symbionts/analysis/orthology/orthofinder/All_carsonella_1/formatted/orthofinder52000/Results_All_carsonella_1/WorkingDirectory/Alignments_ids/SpeciesTreeAlignment.fa
 #cpu=32
