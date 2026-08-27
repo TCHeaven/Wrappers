@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH -c 1
 #SBATCH --account=shame
-#SBATCH --partition=cpu-pre
+#SBATCH --partition=bioagri
 #SBATCH --time=0-01:30:00
 
 CurPath=$PWD
